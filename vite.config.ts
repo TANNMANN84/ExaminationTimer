@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa' // 1. Import the plugin
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/ExamTimer/', // Make sure this matches your GitHub repo name
+  base: '/ExaminationTimer/', // Make sure this matches your GitHub repo name
   plugins: [
     react(),
     VitePWA({ // 2. Add the plugin configuration

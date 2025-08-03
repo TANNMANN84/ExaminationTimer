@@ -2,7 +2,7 @@
   "name": "examination-timer",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://TANNMANN84.github.io/ExamTimer",
+  "homepage": "https://TANNMANN84.github.io/ExaminationTimer",
   "type": "module",
   "scripts": {
     "dev": "vite",
