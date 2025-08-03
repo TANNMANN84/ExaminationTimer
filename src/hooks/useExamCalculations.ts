@@ -9,23 +9,18 @@ export const useExamCalculations = (): { examsToRender: CalculatedExam[] } => {
     const { now } = useTimer();
 
     const examsToRender = useMemo(() => {
-        let lastEndTime = autoStartTargetTime || now.getTime();
-        const isStandardised = sessionMode === 'standardised'; // Define this for convenience
+        // This is the one, correct definition for isStandardised, based on the session mode.
+        const isStandardised = sessionMode === 'standardised';
 
         return exams.map((exam: Exam): CalculatedExam => {
             const calculatedExam: Partial<CalculatedExam> = { ...exam };
 
             // --- Determine Start/End Times ---
             if (isLive) {
-                // In a live session, times are fixed in the state.
+                // In a live session, times are already fixed in the state, so we do nothing here.
             } else {
-                // In preview, calculate cascading times.
-                calculatedExam.startTime = lastEndTime;
-                const readMillis = exam.readMins * 60000;
-                const writeMillis = ((exam.writeHrs * 60) + exam.writeMins + (exam.sp?.extraTime || 0)) * 60000;
-                calculatedExam.readEndTime = calculatedExam.startTime + readMillis;
-                calculatedExam.writeEndTime = calculatedExam.readEndTime + writeMillis;
-                lastEndTime = calculatedExam.writeEndTime;
+                // In preview mode, we don't calculate start/end times.
+                // The component will show placeholders instead, which is correct.
             }
             
             const { readEndTime = 0, writeEndTime = 0 } = calculatedExam;
@@ -34,40 +29,44 @@ export const useExamCalculations = (): { examsToRender: CalculatedExam[] } => {
             let currentStatus = 'Preview';
             let timeRemaining = (exam.readMins + exam.writeHrs * 60 + exam.writeMins + exam.sp.extraTime) * 60000;
             
-            // --- THIS IS THE CORRECTED LOGIC ---
+            // Set the base background color based on the test type
             let cardClass = isStandardised
-                ? 'bg-amber-50 dark:bg-amber-900/30' // Use yellow tint for standardised tests
-                : 'bg-white dark:bg-slate-800';   // Default to white for regular exams
+                ? 'bg-amber-50 dark:bg-amber-900/30' // Yellow tint for standardised tests
+                : 'bg-white dark:bg-slate-800';   // Default white for regular exams
 
             const isGloballyPaused = isSessionPaused && !exam.isPaused;
 
-            // The status-based coloring should only apply to regular examinations
-            if (isLive && !isStandardised) {
-                 if (exam.status === 'abandoned') {
+            // The detailed status-based coloring should only apply to regular (non-standardised) examinations
+            if (isLive && !isStandardised) { // This block determines the status and appearance for live, non-standardised exams.
+                if (exam.status === 'abandoned') {
                     currentStatus = 'Abandoned';
                     cardClass = 'bg-slate-200 dark:bg-slate-700 opacity-60 is-abandoned';
                 } else if (exam.status === 'finished') {
                     currentStatus = 'Finished';
                     timeRemaining = 0;
                     cardClass = 'bg-slate-200 dark:bg-slate-700 opacity-70';
-                } else if (exam.isPaused || isGloballyPaused) {
-                    currentStatus = 'Paused';
-                    timeRemaining = writeEndTime - now.getTime();
-                } else if (exam.sp.onRest) {
-                    currentStatus = 'On Rest Break';
-                    timeRemaining = writeEndTime - now.getTime();
-                } else if (exam.sp.onReaderWriter) {
-                    currentStatus = 'Reader/Writer Active';
-                    timeRemaining = writeEndTime - now.getTime();
-                } else if (now.getTime() < readEndTime) {
-                    currentStatus = 'Reading Time';
-                    timeRemaining = readEndTime - now.getTime();
-                    if (settings.colorAlerts) cardClass = 'bg-sky-100 dark:bg-sky-900/50';
                 } else {
-                    currentStatus = 'Writing Time';
-                    timeRemaining = writeEndTime - now.getTime();
-                    if (settings.colorAlerts) {
-                        cardClass = timeRemaining <= 10 * 60 * 1000 ? 'bg-amber-100 dark:bg-amber-800/30' : 'bg-green-100 dark:bg-green-800/40';
+                    // First, determine the base phase (reading vs. writing) and set time/colors accordingly.
+                    if (now.getTime() < readEndTime) {
+                        currentStatus = 'Reading Time';
+                        timeRemaining = readEndTime - now.getTime();
+                        if (settings.colorAlerts) cardClass = 'bg-sky-100 dark:bg-sky-900/50';
+                    } else {
+                        currentStatus = 'Writing Time';
+                        timeRemaining = writeEndTime - now.getTime();
+                        if (settings.colorAlerts) {
+                            cardClass = timeRemaining <= 10 * 60 * 1000 ? 'bg-amber-100 dark:bg-amber-800/30' : 'bg-green-100 dark:bg-green-800/40';
+                        }
+                    }
+
+                    // Then, override the status string if an overlay state (like pause) is active.
+                    // The time remaining and color from the base phase are preserved.
+                    if (exam.isPaused || isGloballyPaused) {
+                        currentStatus = 'Paused';
+                    } else if (exam.sp.onRest) {
+                        currentStatus = 'On Rest Break';
+                    } else if (exam.sp.onReaderWriter) {
+                        currentStatus = 'Reader/Writer Active';
                     }
                 }
             }

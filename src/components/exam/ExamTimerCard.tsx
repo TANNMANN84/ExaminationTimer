@@ -358,7 +358,7 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
                             onClick={() => dispatch({ type: 'TOGGLE_READER_WRITER', payload: exam.id })}
                             className="mt-2 px-6 py-2 bg-white text-purple-600 font-bold rounded-lg shadow-md hover:bg-purple-100 transition"
                         >
-                            End Session & Resume Exam
+                            Reader/writer Not Active
                         </button>
                     </div>
                 ) : (

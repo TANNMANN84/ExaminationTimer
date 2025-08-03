@@ -8,7 +8,9 @@ import { exportSessionLog } from '../utils/export';
 // --- Helper Functions ---
 const recalculateAllExamEndTimes = (draft: AppState) => {
     const now = Date.now();
-    let lastEndTime = draft.exams[0]?.startTime || now;
+    // This is the key change. All exams should start from the same point in time
+    // for concurrent mode, which is the start time of the first exam.
+    const sessionStartTime = draft.exams[0]?.startTime || now;
 
     // Global pause duration up to now
     const globalPauseDuration = draft.pauseDurationTotal + (draft.isPaused ? (now - (draft.pauseStartTime || now)) : 0);
@@ -18,25 +20,27 @@ const recalculateAllExamEndTimes = (draft: AppState) => {
 
         // If the exam is finished, its times are locked and shouldn't change.
         if (exam.status === 'finished') {
-            lastEndTime = exam.writeEndTime!;
             return;
         }
 
-        exam.startTime = lastEndTime;
+        // All exams now start at the same time for concurrent mode.
+        exam.startTime = sessionStartTime;
         
+        // 1. Calculate the base duration of the exam
         const readMillis = exam.readMins * 60000;
         const writeMillis = ((exam.writeHrs * 60) + exam.writeMins + (exam.sp.extraTime || 0)) * 60000;
         
+        // 2. Calculate all time offsets that push the end time later
         const individualPauseDuration = exam.pauseDurationTotal + (exam.isPaused ? (now - (exam.pauseStartTime || now)) : 0);
         const restDuration = exam.sp.restTaken + (exam.sp.onRest ? (now - (exam.sp.restStartTime || now)) : 0);
         const readerWriterDuration = exam.sp.readerWriterTaken + (exam.sp.onReaderWriter ? (now - (exam.sp.readerWriterStartTime || now)) : 0);
         
+        // 3. Sum all offsets. This includes time from global pauses, individual exam pauses, and any special provision breaks.
         const totalOffset = globalPauseDuration + individualPauseDuration + restDuration + readerWriterDuration;
 
+        // 4. Calculate the final end times based on the common start time, base duration, and total offsets.
         exam.readEndTime = exam.startTime + readMillis + totalOffset;
         exam.writeEndTime = exam.readEndTime + writeMillis;
-
-        lastEndTime = exam.writeEndTime;
     });
 };
 
@@ -80,7 +84,7 @@ const sanitizeLoadedExams = (exams: any[]): Exam[] => {
     if (!Array.isArray(exams)) return [];
 
     const defaultExamShape: Omit<Exam, 'sp'> = {
-        id: '', 
+        id: '',
         name: 'Untitled Exam',
         readMins: 0,
         writeHrs: 0,
@@ -95,6 +99,7 @@ const sanitizeLoadedExams = (exams: any[]): Exam[] => {
         startTime: undefined,
         readEndTime: undefined,
         writeEndTime: undefined,
+    
     };
 
     const defaultSp: SPSettings = {
@@ -264,17 +269,13 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 addLogEntry(draft, 'Session commenced.');
                 
                 if (draft.sessionMode === 'examinations') {
-                    let lastEndTime = Date.now();
+                    const sessionStartTime = Date.now();
                     draft.autoStartTargetTime = null;
 
                     draft.exams.forEach((exam: Exam) => {
-                        exam.startTime = lastEndTime;
-                        const readMillis = exam.readMins * 60000;
-                        const writeMillis = ((exam.writeHrs * 60) + exam.writeMins + (exam.sp?.extraTime || 0)) * 60000;
-                        exam.readEndTime = exam.startTime + readMillis;
-                        exam.writeEndTime = exam.readEndTime + writeMillis;
-                        lastEndTime = exam.writeEndTime;
+                        exam.startTime = sessionStartTime;
                     });
+                    recalculateAllExamEndTimes(draft);
                 }
                 break;
             }
@@ -531,7 +532,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             },
         };
         localStorage.setItem('examTimerState', JSON.stringify(stateToSave));
-    }, [state.settings, state.exams, state.sessionMode, state.ui]);
+    }, [
+        state.settings, 
+        state.exams, 
+        state.sessionMode, 
+        state.ui.showTooltips, 
+        state.ui.fontLockEnabled, 
+        state.ui.fabsCollapsed, 
+        state.ui.theme, 
+        state.ui.showFontControls
+    ]);
 
     return (
         <AppContext.Provider value={{ state, dispatch }}>
