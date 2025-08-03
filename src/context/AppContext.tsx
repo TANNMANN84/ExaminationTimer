@@ -152,7 +152,7 @@ const sanitizeLoadedExams = (exams: any[]): Exam[] => {
 
 // --- Reducer ---
 const appReducer = (state: AppState, action: Action): AppState => {
-    return produce(state, draft => {
+    return produce(state, (draft: AppState) => {
         switch (action.type) {
             case 'SET_THEME': {
                 draft.ui.theme = action.payload;
@@ -204,14 +204,14 @@ const appReducer = (state: AppState, action: Action): AppState => {
 }
             case 'ADD_EXAM': { draft.exams.push(action.payload); break; }
             case 'ADD_EXAMS': {
-                const newExams = action.payload.filter(
-                    presetExam => !draft.exams.some(existingExam => existingExam.name === presetExam.name)
+                const newExams = action.payload.filter((presetExam: Exam) =>
+                    !draft.exams.some((existingExam: Exam) => existingExam.name === presetExam.name)
                 );
                 draft.exams.push(...newExams);
                 break;
             }
             case 'UPDATE_EXAM': {
-                const index = draft.exams.findIndex(e => e.id === action.payload.id);
+                const index = draft.exams.findIndex((e: Exam) => e.id === action.payload.id);
                 if (index !== -1) {
                     draft.exams[index] = action.payload;
                     if (draft.isLive && draft.sessionMode === 'examinations') recalculateAllExamEndTimes(draft);
@@ -219,7 +219,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 break;
             }
             case 'DELETE_EXAM': {
-                draft.exams = draft.exams.filter(e => e.id !== action.payload);
+                draft.exams = draft.exams.filter((e: Exam) => e.id !== action.payload);
                 break;
             }
             case 'CLEAR_ALL_EXAMS': { draft.exams = []; break; }
@@ -267,7 +267,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
                     let lastEndTime = Date.now();
                     draft.autoStartTargetTime = null;
 
-                    draft.exams.forEach(exam => {
+                    draft.exams.forEach((exam: Exam) => {
                         exam.startTime = lastEndTime;
                         const readMillis = exam.readMins * 60000;
                         const writeMillis = ((exam.writeHrs * 60) + exam.writeMins + (exam.sp?.extraTime || 0)) * 60000;
@@ -288,7 +288,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 draft.isPaused = false;
                 draft.autoStartTargetTime = null;
                 draft.sessionLog = [];
-                draft.exams.forEach(exam => {
+                draft.exams.forEach((exam: Exam) => {
                     exam.status = 'running';
                     exam.isPaused = false;
                     exam.sp.onRest = false;
@@ -376,7 +376,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 const now = Date.now();
                 const { examId, justification } = action.payload;
                 if (examId) {
-                    const exam = draft.exams.find(e => e.id === examId);
+                    const exam = draft.exams.find((e: Exam) => e.id === examId);
                     if (exam) {
                         exam.isPaused = true;
                         exam.pauseStartTime = now;
@@ -393,7 +393,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 const now = Date.now();
                 const { examId } = action.payload;
                 if (examId) {
-                    const exam = draft.exams.find(e => e.id === examId);
+                    const exam = draft.exams.find((e: Exam) => e.id === examId);
                     if (exam && exam.pauseStartTime) {
                         exam.pauseDurationTotal += now - exam.pauseStartTime;
                         exam.isPaused = false;
@@ -414,7 +414,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 break;
             }
             case 'ABANDON_EXAM': {
-                const exam = draft.exams.find(e => e.id === action.payload.examId);
+                const exam = draft.exams.find((e: Exam) => e.id === action.payload.examId);
                 if (exam) {
                     exam.status = 'abandoned';
                     addLogEntry(draft, `Exam "${exam.name}" abandoned. Justification: ${action.payload.justification}`);
@@ -425,7 +425,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 break;
             }
             case 'TOGGLE_REST_BREAK': {
-                const exam = draft.exams.find(e => e.id === action.payload);
+                const exam = draft.exams.find((e: Exam) => e.id === action.payload);
                 if (exam) {
                     const now = Date.now();
                     if (exam.sp.onRest) {
@@ -445,7 +445,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 break;
             }
             case 'TOGGLE_READER_WRITER': {
-                const exam = draft.exams.find(e => e.id === action.payload);
+                const exam = draft.exams.find((e: Exam) => e.id === action.payload);
                 if (exam) {
                     const now = Date.now();
                     if (exam.sp.onReaderWriter) {
@@ -465,7 +465,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 break;
             }
             case 'FINISH_EXAM': {
-                const exam = draft.exams.find(e => e.id === action.payload);
+                const exam = draft.exams.find((e: Exam) => e.id === action.payload); 
                 if (exam && exam.status !== 'finished') {
                     exam.status = 'finished';
                     addLogEntry(draft, `Exam "${exam.name}" finished automatically.`);

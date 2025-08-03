@@ -63,11 +63,11 @@ const App: React.FC = () => {
         }
     }, []);
 
-    useHotkeys('ctrl+s, command+s', (e) => {
+    useHotkeys('ctrl+s, command+s', (e: KeyboardEvent) => {
         e.preventDefault();
         exportSession(state);
     }, [state]);
-     useHotkeys('ctrl+o, command+o', (e) => {
+     useHotkeys('ctrl+o, command+o', (e: KeyboardEvent) => {
         e.preventDefault();
         document.getElementById('import-file-input')?.click();
     });
