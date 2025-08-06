@@ -84,7 +84,6 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
                         renderedElements.push(<span key={`hyphen-${i}`} className="text-slate-500 dark:text-slate-400" style={{ fontSize: `${digitFontSize}px`, lineHeight: 1 }}>-</span>);
                     }
                 } else {
-                    // 3-2-3-2 pattern for other tests
                     if (i === 2 || i === 4 || i === 7 || i === 9) {
                         renderedElements.push(<span key={`hyphen-${i}`} className="text-slate-500 dark:text-slate-400" style={{ fontSize: `${digitFontSize}px`, lineHeight: 1 }}>-</span>);
                     }
@@ -95,20 +94,20 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
         return (
              <div className="my-3 space-y-2">
                  <div className="flex items-center justify-center space-x-2">
-                    <FontControl elementId={`access-code-title-${exam.id}`} direction="down" />
-                    <p id={`access-code-title-${exam.id}`} className="font-semibold text-slate-800 dark:text-slate-200 text-center" style={{ fontSize: `${titleFontSize}px` }}>
-                        Access Code
-                    </p>
-                    <FontControl elementId={`access-code-title-${exam.id}`} direction="up" />
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                    <FontControl elementId={`access-code-digits-${exam.id}`} direction="down" />
-                     <div className="flex items-center justify-center flex-wrap gap-x-2 gap-y-1">
-                        {renderedElements}
-                    </div>
-                    <FontControl elementId={`access-code-digits-${exam.id}`} direction="up" />
-                </div>
-             </div>
+                     <FontControl elementId={`access-code-title-${exam.id}`} direction="down" />
+                     <p id={`access-code-title-${exam.id}`} className="font-semibold text-slate-800 dark:text-slate-200 text-center" style={{ fontSize: `${titleFontSize}px` }}>
+                         Access Code
+                     </p>
+                     <FontControl elementId={`access-code-title-${exam.id}`} direction="up" />
+                 </div>
+                 <div className="flex items-center justify-center space-x-2">
+                     <FontControl elementId={`access-code-digits-${exam.id}`} direction="down" />
+                      <div className="flex items-center justify-center flex-wrap gap-x-2 gap-y-1">
+                         {renderedElements}
+                     </div>
+                     <FontControl elementId={`access-code-digits-${exam.id}`} direction="up" />
+                 </div>
+               </div>
         )
     };
 
@@ -126,7 +125,7 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
         const totalRestMillis = exam.sp.restBreaks * 60000;
         const restProgress = totalRestMillis > 0 ? Math.min((exam.sp.restTaken / totalRestMillis) * 100, 100) : 0;
         const restStyle = !showSpCountdown ? {
-             background: `linear-gradient(to right, #3730a3 ${restProgress}%, #4f46e5 ${restProgress}%)`
+              background: `linear-gradient(to right, #3730a3 ${restProgress}%, #4f46e5 ${restProgress}%)`
         } : {};
 
         const totalRwMillis = exam.sp.readerWriterTime * 60000;
@@ -182,32 +181,32 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
             <div className="flex items-center gap-2 mr-3">
                 {exam.sp.extraTime > 0 && (
                      <div 
-                        onMouseOver={handleMouseOver(`Approved Extra Time: ${exam.sp.extraTime} mins`)} 
-                        onMouseOut={hideTooltip}
-                        className="cursor-pointer"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </div>
+                         onMouseOver={handleMouseOver(`Approved Extra Time: ${exam.sp.extraTime} mins`)} 
+                         onMouseOut={hideTooltip}
+                         className="cursor-pointer"
+                     >
+                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                     </div>
                 )}
                 {exam.sp.restBreaks > 0 && (
                     <div 
-                        onMouseOver={handleMouseOver(`Approved Rest Breaks: ${exam.sp.restBreaks} mins`)} 
-                        onMouseOut={hideTooltip}
-                        className="cursor-pointer"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-500 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M10 9v6m4-6v6" /></svg>
-                    </div>
+                         onMouseOver={handleMouseOver(`Approved Rest Breaks: ${exam.sp.restBreaks} mins`)} 
+                         onMouseOut={hideTooltip}
+                         className="cursor-pointer"
+                     >
+                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-500 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M10 9v6m4-6v6" /></svg>
+                     </div>
                 )}
                 {exam.sp.readerWriterTime > 0 && (
-                     <div 
-                        onMouseOver={handleMouseOver(`Approved Reader/Writer Time: ${exam.sp.readerWriterTime} mins`)} 
-                        onMouseOut={hideTooltip}
-                        className="cursor-pointer"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-500 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                           <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                      <div 
+                         onMouseOver={handleMouseOver(`Approved Reader/Writer Time: ${exam.sp.readerWriterTime} mins`)} 
+                         onMouseOut={hideTooltip}
+                         className="cursor-pointer"
+                     >
+                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-500 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                         </svg>
-                    </div>
+                     </div>
                 )}
             </div>
         );
@@ -229,90 +228,96 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
                         </button>
                     )}
                      <button 
-                        onClick={handleEditClick} 
-                        onMouseOver={handleMouseOver(`Edit "${exam.name}"`)}
-                        onMouseOut={hideTooltip}
-                        className="p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition" 
-                        aria-label={`Edit ${exam.name}`}
+                         onClick={handleEditClick} 
+                         onMouseOver={handleMouseOver(`Edit "${exam.name}"`)}
+                         onMouseOut={hideTooltip}
+                         className="p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition" 
+                         aria-label={`Edit ${exam.name}`}
                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="pointer-events-none"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-                    </button>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="pointer-events-none"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                     </button>
                 </div>
 
-                <div className="flex items-start space-x-2">
-                    <FontControl elementId={`exam-title-${exam.id}`} direction="down" />
-                    <div className="flex items-center pr-8 flex-grow">
-                        {renderSPIcons()}
-                        <h3 id={`exam-title-${exam.id}`} className="text-2xl font-bold text-slate-900 dark:text-slate-100" style={{ fontSize: settings.fontSizes[`exam-title-${exam.id}`] || 24 }}>
+                {/* --- FIX: EXAM TITLE (CENTERED) --- */}
+                <div className="flex items-center justify-center pr-8 mb-3">
+                    {renderSPIcons()}
+                    <div className="flex items-center space-x-2">
+                        <FontControl elementId={`exam-title-${exam.id}`} direction="down" />
+                        <h3 id={`exam-title-${exam.id}`} className="text-2xl font-bold text-slate-900 dark:text-slate-100 text-center" style={{ fontSize: settings.fontSizes[`exam-title-${exam.id}`] || 24 }}>
                             {exam.name}
                         </h3>
+                        <FontControl elementId={`exam-title-${exam.id}`} direction="up" />
                     </div>
-                     <FontControl elementId={`exam-title-${exam.id}`} direction="up" />
                 </div>
                 
                 {isStandardised ? renderAccessCode() : (
-                    <div className="my-3 space-y-2">
+                    <div className="space-y-2">
+                        {/* --- FIX: STATUS (LEFT-ALIGNED) --- */}
                         {settings.showStatus && (
-                            <p 
-                                onMouseOver={handleMouseOver(<ExamStatusGraphic status={calculatedStatus} />)}
-                                onMouseOut={hideTooltip}
-                                className={`text-xl font-semibold flex items-center gap-2 cursor-help ${exam.status === 'finished' ? 'text-green-700 dark:text-green-400' : 'text-indigo-600 dark:text-indigo-400'}`}
-                            >
-                                {exam.status === 'finished' && (
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600 dark:text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                    </svg>
-                                )}
-                                {calculatedStatus}
-                            </p>
+                            <div className="flex justify-start">
+                                <p 
+                                    onMouseOver={handleMouseOver(<ExamStatusGraphic status={calculatedStatus} />)}
+                                    onMouseOut={hideTooltip}
+                                    className={`text-xl font-semibold flex items-center gap-2 cursor-help ${exam.status === 'finished' ? 'text-green-700 dark:text-green-400' : 'text-indigo-600 dark:text-indigo-400'}`}
+                                >
+                                    {exam.status === 'finished' && (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600 dark:text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                        </svg>
+                                    )}
+                                    {calculatedStatus}
+                                </p>
+                            </div>
                         )}
                         
+                        {/* --- FIX: EXAM TIMES (LEFT-ALIGNED) --- */}
                         {settings.showTimes && (
-                            <div className="flex items-center space-x-2">
-                                <FontControl elementId={`exam-times-${exam.id}`} direction="down" />
-                                <div 
-                                    id={`exam-times-${exam.id}`} 
-                                    className="flex-grow text-xl font-semibold text-slate-800 dark:text-slate-200 space-y-1 tabular-nums cursor-help" 
-                                    style={{ fontSize: settings.fontSizes[`exam-times-${exam.id}`] || 20 }}
-                                    onMouseOver={handleMouseOver(<StartEndTimelineGraphic start={new Date(startTime)} end={new Date(writeEndTime)} is24hr={settings.is24hr} />)}
-                                    onMouseOut={hideTooltip}
-                                >
-                                   {showRealTimes ? (
-                                        settings.singleLineTime ? (
-                                             <p>
-                                                {settings.timeBreakdown 
-                                                    ? `R: ${formatClockTime(new Date(startTime), settings.is24hr, false)}-${formatClockTime(new Date(readEndTime), settings.is24hr, false)} | W: ${formatClockTime(new Date(readEndTime), settings.is24hr, false)}-${formatClockTime(new Date(writeEndTime), settings.is24hr, false)}`
-                                                    : `Start: ${formatClockTime(new Date(startTime), settings.is24hr, false)} - End: ${formatClockTime(new Date(writeEndTime), settings.is24hr, false)}`
-                                                }
-                                             </p>
-                                        ) : (
-                                            <>
-                                                <p>Start: {formatClockTime(new Date(startTime), settings.is24hr, false)}</p>
-                                                {settings.timeBreakdown && <p>Reading End: {formatClockTime(new Date(readEndTime), settings.is24hr, false)}</p>}
-                                                <p>End: {formatClockTime(new Date(writeEndTime), settings.is24hr, false)}</p>
-                                            </>
-                                        )
-                                   ) : (
-                                        settings.singleLineTime ? (
-                                            <p>Start: --:-- - End: --:--</p>
-                                        ) : (
-                                            <>
-                                                <p>Start: --:--</p>
-                                                <p>End: --:--</p>
-                                            </>
-                                        )
-                                   )}
+                            <div 
+                                className="tabular-nums cursor-help flex justify-start" 
+                                onMouseOver={handleMouseOver(<StartEndTimelineGraphic start={new Date(startTime)} end={new Date(writeEndTime)} is24hr={settings.is24hr} />)}
+                                onMouseOut={hideTooltip}
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <FontControl elementId={`exam-times-${exam.id}`} direction="down" />
+                                    <div id={`exam-times-${exam.id}`} className="text-xl font-semibold text-slate-800 dark:text-slate-200 space-y-1" style={{ fontSize: settings.fontSizes[`exam-times-${exam.id}`] || 20 }}>
+                                        {showRealTimes ? (
+                                            settings.singleLineTime ? (
+                                                 <p>
+                                                   {settings.timeBreakdown 
+                                                        ? `R: ${formatClockTime(new Date(startTime), settings.is24hr, false)}-${formatClockTime(new Date(readEndTime), settings.is24hr, false)} | W: ${formatClockTime(new Date(readEndTime), settings.is24hr, false)}-${formatClockTime(new Date(writeEndTime), settings.is24hr, false)}`
+                                                        : `Start: ${formatClockTime(new Date(startTime), settings.is24hr, false)} - End: ${formatClockTime(new Date(writeEndTime), settings.is24hr, false)}`
+                                                   }
+                                                 </p>
+                                             ) : (
+                                                 <>
+                                                     <p>Start: {formatClockTime(new Date(startTime), settings.is24hr, false)}</p>
+                                                     {settings.timeBreakdown && <p>Reading End: {formatClockTime(new Date(readEndTime), settings.is24hr, false)}</p>}
+                                                     <p>End: {formatClockTime(new Date(writeEndTime), settings.is24hr, false)}</p>
+                                                 </>
+                                             )
+                                         ) : (
+                                             settings.singleLineTime ? (
+                                                 <p>Start: --:-- - End: --:--</p>
+                                             ) : (
+                                                 <>
+                                                     <p>Start: --:--</p>
+                                                     <p>End: --:--</p>
+                                                 </>
+                                             )
+                                        )}
+                                    </div>
+                                    <FontControl elementId={`exam-times-${exam.id}`} direction="up" />
                                 </div>
-                                <FontControl elementId={`exam-times-${exam.id}`} direction="up" />
                             </div>
                         )}
 
+                        {/* --- FIX: COUNTDOWN (CENTERED) --- */}
                         {settings.showCountdown && (
-                            <div className="flex items-center space-x-2 mt-2">
+                            <div className="flex items-center justify-center space-x-2 pt-2">
                                 <FontControl elementId={`exam-countdown-${exam.id}`} direction="down" />
                                 <p 
                                     id={`exam-countdown-${exam.id}`} 
-                                    className="flex-grow text-center text-4xl font-bold tabular-nums text-slate-800 dark:text-slate-200"
+                                    className="text-center text-4xl font-bold tabular-nums text-slate-800 dark:text-slate-200"
                                     style={{fontSize: settings.fontSizes[`exam-countdown-${exam.id}`] || 36}}
                                 >
                                     {formatTime(timeRemaining)}
@@ -323,6 +328,7 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
                     </div>
                 )}
 
+                {/* --- FIX: OPTIONAL INFO (LEFT-ALIGNED) --- */}
                 {exam.optionalInfo && (
                     <div className="flex items-start space-x-2 mt-4">
                         <FontControl elementId={`optional-info-${exam.id}`} direction="down" />
