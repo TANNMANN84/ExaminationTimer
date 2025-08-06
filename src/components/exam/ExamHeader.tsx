@@ -34,21 +34,29 @@ const ExamHeader: React.FC = () => {
                         </h1>
                         <FontControl elementId="header-session-title" direction="up" />
                     </div>
+                    
                     {/* School Name */}
                     {settings.showSchool && (
                          <div className="flex items-center space-x-2 mt-1">
                             <FontControl elementId="header-school-info" direction="down" />
-                            <p id="header-school-info" className="text-xl text-slate-500 dark:text-slate-400" style={{fontSize: settings.fontSizes['header-school-info']}}>
+                            {/* FIX: Darker text colour */}
+                            <p id="header-school-info" className="text-xl text-slate-700 dark:text-slate-300" style={{fontSize: settings.fontSizes['header-school-info']}}>
                                 {settings.schoolName}
                             </p>
                             <FontControl elementId="header-school-info" direction="up" />
                         </div>
                     )}
+
                     {/* Centre Number */}
                     {settings.showSchool && !isStandardised && settings.showCentre && (
-                        <p className="text-xl text-slate-500 dark:text-slate-400 mt-1">
-                           Centre: {settings.centreNumber}
-                        </p>
+                        // FIX: Added FontControls back and darker text
+                        <div className="flex items-center space-x-2 mt-1">
+                            <FontControl elementId="header-centre-number" direction="down" />
+                            <p id="header-centre-number" className="text-xl text-slate-700 dark:text-slate-300" style={{fontSize: settings.fontSizes['header-centre-number']}}>
+                               Centre: {settings.centreNumber}
+                            </p>
+                            <FontControl elementId="header-centre-number" direction="up" />
+                        </div>
                     )}
                 </div>
 
@@ -68,15 +76,16 @@ const ExamHeader: React.FC = () => {
                     <FontControl elementId="header-time" direction="up" />
                 </div>
 
-                {/* --- Column 4: Date --- */}
+                {/* --- Column 4: Date (Font controls now work for both lines) --- */}
                 <div className="flex flex-col items-center text-center">
                      <div className="flex items-center space-x-2">
                         <FontControl elementId="header-date" direction="down" />
-                        <div>
-                            <p className="text-2xl font-semibold text-slate-500 dark:text-slate-400">
+                        {/* FIX: Controls now target this parent div, affecting both lines. Darker text colour. */}
+                        <div id="header-date" style={{fontSize: settings.fontSizes['header-date']}}>
+                            <p className="text-2xl font-semibold text-slate-700 dark:text-slate-300">
                                 {dayString}
                             </p>
-                            <p id="header-date" className="text-2xl font-semibold text-slate-500 dark:text-slate-400" style={{fontSize: settings.fontSizes['header-date']}}>
+                            <p className="text-2xl font-semibold text-slate-700 dark:text-slate-300">
                                 {dateString}
                             </p>
                         </div>
