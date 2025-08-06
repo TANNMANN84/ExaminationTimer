@@ -20,7 +20,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose }) => {
                 <img src={crestUrl} alt="School Crest" className="h-24 w-auto mx-auto mb-4" />
 
                 <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 dark:text-slate-100">
-                    Examination Timer App <span className="text-indigo-500 dark:text-indigo-400 text-4xl">v7.6</span>
+                    Examination Timer App <span className="text-indigo-500 dark:text-indigo-400 text-4xl">v7.6.2</span>
                 </h1>
                 <p className="text-lg text-slate-600 dark:text-slate-300 mt-4 max-w-2xl mx-auto">
                     A comprehensive tool for managing and displaying examination timers.
