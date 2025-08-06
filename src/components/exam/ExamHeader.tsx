@@ -13,22 +13,21 @@ const ExamHeader: React.FC = () => {
         ? 'grid-cols-[auto,1fr,auto,1fr]'
         : 'grid-cols-[1fr,auto,1fr]';
 
-    // Get the shared font size for the date block
     const dateFontSize = settings.fontSizes['header-date'];
 
     return (
         <header className="p-4 border-b-4 border-slate-200 dark:border-slate-700 mb-6">
             <div className={`grid ${gridLayoutClass} items-center gap-x-6 w-full`}>
 
-                {/* Column 1: Crest */}
+                {/* --- Column 1: Crest --- */}
                 {settings.showCrest && (
                     <div className="flex justify-start">
                         <img src={settings.crestUrl} alt="School Crest" className="h-20 w-auto object-contain" />
                     </div>
                 )}
 
-                {/* Column 2: Title & School Info */}
-                <div className="flex flex-col items-center text-center">
+                {/* --- Column 2: Title & School Info (Padding Added) --- */}
+                <div className="flex flex-col items-center text-center py-2">
                     <div className="flex items-center space-x-2">
                         <FontControl elementId="header-session-title" direction="down" />
                         <h1 id="header-session-title" className="text-4xl lg:text-5xl font-bold" style={{fontSize: settings.fontSizes['header-session-title']}}>
@@ -58,7 +57,7 @@ const ExamHeader: React.FC = () => {
                     )}
                 </div>
 
-                {/* Column 3: Main Clock */}
+                {/* --- Column 3: Main Clock --- */}
                 <div className="flex justify-center items-baseline space-x-2">
                     <FontControl elementId="header-time" direction="down" />
                     <div className="flex items-baseline">
@@ -74,12 +73,11 @@ const ExamHeader: React.FC = () => {
                     <FontControl elementId="header-time" direction="up" />
                 </div>
 
-                {/* Column 4: Date (Font controls now work for both lines) */}
-                <div className="flex flex-col items-center text-center">
+                {/* --- Column 4: Date (Padding Added) --- */}
+                <div className="flex flex-col items-center text-center py-2">
                      <div className="flex items-center space-x-2">
                         <FontControl elementId="header-date" direction="down" />
                         <div id="header-date-wrapper">
-                            {/* FIX: Apply the shared font size to both lines */}
                             <p className="text-2xl font-semibold text-slate-700 dark:text-slate-300" style={{fontSize: dateFontSize}}>
                                 {dayString}
                             </p>
