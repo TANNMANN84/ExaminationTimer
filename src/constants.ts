@@ -25,7 +25,8 @@ export const DEFAULT_SETTINGS: Settings = {
     fontSizes: {
         'header-session-title': 46,
         'header-school-info': 38,
-        'header-time': 154,
+        'header-centre-number': 38, 
+        'header-time': 150,
         'header-date': 56,
     }
 };
@@ -33,7 +34,7 @@ export const DEFAULT_SETTINGS: Settings = {
 // --- NO CHANGES BELOW THIS LINE ---
 
 export const SESSION_PRESETS: Record<string, Partial<Settings>> = {
-    'HSC Examinations': { showCentre: true, showCrest: false, gridLayout: 3, showTimes: true, showSchool: false },
+    'HSC Examinations': { showCentre: true, showCrest: false, gridLayout: 3, showTimes: true, showSchool: true },
     'Trial HSC Examinations': { showSchool: true, showCentre: true, showCrest: true, gridLayout: 3, showTimes: true, showStatus: true },
     'Exit Examinations': { showSchool: true, showCrest: true, showStatus: true, gridLayout: 3, showTimes: true },
     'Half Yearly Examinations': { showSchool: true, showCrest: true, showStatus: true, gridLayout: 3, showTimes: true },
