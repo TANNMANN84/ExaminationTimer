@@ -15,8 +15,8 @@ export const DEFAULT_SETTINGS: Settings = {
     showStatus: true,
     showTimes: true,
     showCountdown: false,
-    timeBreakdown: false,
-    singleLineTime: true,
+    timeBreakdown: true,
+    singleLineTime: false,
     disableTimers: false,
     colorAlerts: false,
     specialProvisions: false,
@@ -27,9 +27,9 @@ export const DEFAULT_SETTINGS: Settings = {
     is24hr: false,
     fontSizes: {
         'header-session-title': 30,
-        'header-school-info': 16,
-        'header-time': 72,
-        'header-date': 20,
+        'header-school-info': 22,
+        'header-time': 120,
+        'header-date': 36,
     }
 };
 
@@ -109,5 +109,5 @@ export const EXAM_PRESETS: Record<string, ExamPresetCategory> = {
         ],
         "Other": [ { "name": "12 Distance Education", "readMins": 10, "writeHrs": 3, "writeMins": 0 } ]
     },
-    // ... (the rest of your exam presets remain unchanged)
+    
 };
