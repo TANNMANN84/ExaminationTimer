@@ -81,7 +81,8 @@ const ExamHeader: React.FC = () => {
                             <p className="text-2xl font-semibold text-slate-700 dark:text-slate-300" style={{fontSize: dateFontSize}}>
                                 {dayString}
                             </p>
-                            <p className="text-2xl font-semibold text-slate-700 dark:text-slate-300" style={{fontSize: dateFontSize}}>
+                            {/* FIX: Added margin-top to this line to create space */}
+                            <p className="text-2xl font-semibold text-slate-700 dark:text-slate-300 mt-1" style={{fontSize: dateFontSize}}>
                                 {dateString}
                             </p>
                         </div>
