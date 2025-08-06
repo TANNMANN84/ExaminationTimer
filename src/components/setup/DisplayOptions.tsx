@@ -36,7 +36,7 @@ const DisplayOptions: React.FC = () => {
         // If turning SP on for the first time, default to 1 column.
         // This logic is now in the UI, not hidden in the reducer.
         if (isEnabled) {
-            newSettings.gridLayout = '1';
+            newSettings.gridLayout = 1;
         }
 
         dispatch({ type: 'UPDATE_SETTINGS', payload: newSettings });
