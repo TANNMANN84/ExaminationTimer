@@ -6,13 +6,13 @@ import FontControl from './FontControl';
 const ExamHeader: React.FC = () => {
     const { state } = useAppContext();
     const { settings, sessionMode } = state;
-    // Correctly destructure the new variables from the hook
     const { timeValue, timePeriod, dayString, dateString } = useTimer();
     const isStandardised = sessionMode === 'standardised';
 
+    // Symmetrical columns ensure the clock is always centred
     const gridLayoutClass = settings.showCrest
-        ? 'grid-cols-[auto,1.5fr,auto,1fr]'
-        : 'grid-cols-[1.5fr,auto,1fr]';
+        ? 'grid-cols-[auto,1fr,auto,1fr]'
+        : 'grid-cols-[1fr,auto,1fr]';
 
     return (
         <header className="p-4 border-b-4 border-slate-200 dark:border-slate-700 mb-6">
@@ -25,8 +25,8 @@ const ExamHeader: React.FC = () => {
                     </div>
                 )}
 
-                {/* --- Column 2: Title & School Info --- */}
-                <div className="flex flex-col items-start text-left">
+                {/* --- Column 2: Title & School Info (Justified to the centre) --- */}
+                <div className="flex flex-col items-center text-center">
                     <div className="flex items-center space-x-2">
                         <FontControl elementId="header-session-title" direction="down" />
                         <h1 id="header-session-title" className="text-4xl lg:text-5xl font-bold" style={{fontSize: settings.fontSizes['header-session-title']}}>
@@ -34,6 +34,7 @@ const ExamHeader: React.FC = () => {
                         </h1>
                         <FontControl elementId="header-session-title" direction="up" />
                     </div>
+                    {/* School Name */}
                     {settings.showSchool && (
                          <div className="flex items-center space-x-2 mt-1">
                             <FontControl elementId="header-school-info" direction="down" />
@@ -43,8 +44,9 @@ const ExamHeader: React.FC = () => {
                             <FontControl elementId="header-school-info" direction="up" />
                         </div>
                     )}
+                    {/* Centre Number */}
                     {settings.showSchool && !isStandardised && settings.showCentre && (
-                        <p className="text-xl text-slate-500 dark:text-slate-400 mt-1 pl-8">
+                        <p className="text-xl text-slate-500 dark:text-slate-400 mt-1">
                            Centre: {settings.centreNumber}
                         </p>
                     )}
