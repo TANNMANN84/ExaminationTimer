@@ -338,11 +338,11 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 if (draft.ui.fontLockEnabled) {
                     const cardPrefixes: Record<string, number> = {
                         'access-code-title-': 20,
-                        'access-code-digits-': 20,
-                        'exam-title-': 24,
-                        'exam-times-': 20,
+                        'access-code-digits-': 40,
+                        'exam-title-': 42,
+                        'exam-times-': 24,
                         'exam-countdown-': 36,
-                        'optional-info-': 14,
+                        'optional-info-': 20,
                     };
                     
                     let matchedPrefix: string | null = null;
