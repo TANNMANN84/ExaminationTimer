@@ -1,9 +1,6 @@
 import type { Settings, ExamPresetCategory } from './types';
 import schoolCrest from './assets/school_crest.png'; // 1. ADDED THIS IMPORT
 
-// This line has been removed as it is incorrect for the build process.
-// export const SCHOOL_CREST_URL = './assets/school_crest.png';
-
 export const DEFAULT_SETTINGS: Settings = {
     sessionTitle: 'Trial HSC Examinations',
     schoolName: 'Inverell High School',
@@ -26,10 +23,10 @@ export const DEFAULT_SETTINGS: Settings = {
     showSeconds: true,
     is24hr: false,
     fontSizes: {
-        'header-session-title': 30,
-        'header-school-info': 22,
-        'header-time': 120,
-        'header-date': 36,
+        'header-session-title': 46,
+        'header-school-info': 38,
+        'header-time': 154,
+        'header-date': 56,
     }
 };
 
