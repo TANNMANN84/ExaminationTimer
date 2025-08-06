@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 
@@ -17,27 +16,41 @@ export const useTimer = () => {
             timeoutId = window.setTimeout(update, msUntilNextSecond);
         };
 
-        update(); // Start immediately
+        update();
 
         return () => clearTimeout(timeoutId);
-    }, []); // Runs once and self-regulates
+    }, []);
 
     const timeOptions: Intl.DateTimeFormatOptions = {
-        hour: is24hr ? '2-digit' : 'numeric',
+        hour: 'numeric',
         minute: '2-digit',
         hour12: !is24hr,
     };
+
     if (showSeconds) {
         timeOptions.second = '2-digit';
     }
 
-    const timeString = now.toLocaleTimeString('en-AU', timeOptions);
+    const fullTimeString = now.toLocaleTimeString('en-AU', timeOptions);
+    
+    let timeValue = fullTimeString;
+    let timePeriod = '';
+
+    if (!is24hr) {
+        const parts = fullTimeString.split(' ');
+        timeValue = parts[0];
+        timePeriod = parts[1] || '';
+    }
+
+    // --- UPDATED DATE LOGIC ---
+    // Create two separate strings for the date
+    const dayString = now.toLocaleDateString('en-AU', { weekday: 'long' });
     const dateString = now.toLocaleDateString('en-AU', {
-        weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric',
     });
 
-    return { now, timeString, dateString };
+    // Return all the separated values
+    return { now, timeValue, timePeriod, dayString, dateString };
 };
