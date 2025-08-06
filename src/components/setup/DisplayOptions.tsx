@@ -27,6 +27,20 @@ const DisplayOptions: React.FC = () => {
     const handleSelect = (key: keyof Settings) => (e: React.ChangeEvent<HTMLSelectElement>) => {
         handleSettingChange(key, Number(e.target.value) as GridLayout);
     };
+
+    // --- FIX: Create a specific handler for the Special Provisions toggle ---
+    const handleSpecialProvisionsToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const isEnabled = e.target.checked;
+        const newSettings: Partial<Settings> = { specialProvisions: isEnabled };
+
+        // If turning SP on for the first time, default to 1 column.
+        // This logic is now in the UI, not hidden in the reducer.
+        if (isEnabled) {
+            newSettings.gridLayout = '1';
+        }
+
+        dispatch({ type: 'UPDATE_SETTINGS', payload: newSettings });
+    };
     
     const inputClasses = "w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md bg-transparent focus:ring-2 focus:ring-indigo-500";
     const labelClasses = "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1";
@@ -36,18 +50,18 @@ const DisplayOptions: React.FC = () => {
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 p-6 pb-4">Display Options</h2>
             <div className="divide-y divide-slate-200 dark:divide-slate-700">
                 <Accordion title="Header Content">
-                       <div className="space-y-4">
-                            <div>
-                                <label htmlFor="schoolName" className={labelClasses}>School Name</label>
-                                <input type="text" id="schoolName" name="schoolName" value={settings.schoolName} onChange={handleInputChange('schoolName')} className={inputClasses} />
-                            </div>
-                            {!isStandardised && (
-                                <div>
-                                    <label htmlFor="centreNumber" className={labelClasses}>Centre Number</label>
-                                    <input type="text" id="centreNumber" name="centreNumber" value={settings.centreNumber} onChange={handleInputChange('centreNumber')} className={inputClasses} />
-                                </div>
-                            )}
+                    <div className="space-y-4">
+                        <div>
+                            <label htmlFor="schoolName" className={labelClasses}>School Name</label>
+                            <input type="text" id="schoolName" name="schoolName" value={settings.schoolName} onChange={handleInputChange('schoolName')} className={inputClasses} />
                         </div>
+                        {!isStandardised && (
+                            <div>
+                                <label htmlFor="centreNumber" className={labelClasses}>Centre Number</label>
+                                <input type="text" id="centreNumber" name="centreNumber" value={settings.centreNumber} onChange={handleInputChange('centreNumber')} className={inputClasses} />
+                            </div>
+                        )}
+                    </div>
                     <SettingRow label="Show school name" tooltip="Displays the configured school name in the header.">
                         <Toggle checked={settings.showSchool} onChange={handleToggle('showSchool')} />
                     </SettingRow>
@@ -87,15 +101,21 @@ const DisplayOptions: React.FC = () => {
                     </Accordion>
                 )}
                 <Accordion title="Accessibility & Layout">
-                     {!isStandardised && (
+                   {!isStandardised && (
+                        // --- FIX: Using the new, specific handler ---
                         <SettingRow label="Enable Special Provisions" tooltip="Adds options for extra time and rest breaks to exams. Defaults to a 1-column layout.">
-                           <Toggle checked={settings.specialProvisions} onChange={handleToggle('specialProvisions')} />
+                           <Toggle checked={settings.specialProvisions} onChange={handleSpecialProvisionsToggle} />
                        </SettingRow>
-                     )}
+                    )}
                     <SettingRow label="Grid Layout" tooltip={<GridLayoutGraphic />}>
-                         <select value={settings.gridLayout} onChange={handleSelect('gridLayout')} className="p-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                         <select 
+                            value={settings.gridLayout} 
+                            onChange={handleSelect('gridLayout')} 
+                            // This dropdown should never be disabled. The bug is in the LIVE settings modal.
+                            className="p-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500"
+                        >
                             <option value="1">1 Column</option>
-                            <option value="2">2 Columns</option> {/* <-- ADDED THIS LINE */}
+                            <option value="2">2 Columns</option>
                             <option value="3">3 Columns (Default)</option>
                             <option value="4">4 Columns</option>
                             <option value="5">5 Columns</option>
