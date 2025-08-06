@@ -33,10 +33,8 @@ const App: React.FC = () => {
         };
 
         handleSystemThemeChange();
-
         const systemThemeWatcher = window.matchMedia('(prefers-color-scheme: dark)');
         systemThemeWatcher.addEventListener('change', handleSystemThemeChange);
-
         return () => {
             systemThemeWatcher.removeEventListener('change', handleSystemThemeChange);
         };
@@ -55,6 +53,22 @@ const App: React.FC = () => {
             }
         };
         manageFullscreen();
+    }, [state.isLive]);
+
+    // --- FIX: ADDED REFRESH WARNING FOR LIVE SESSIONS ---
+    useEffect(() => {
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            event.preventDefault();
+            event.returnValue = 'Are you sure you want to leave? Your live exam session will be interrupted.';
+        };
+
+        if (state.isLive) {
+            window.addEventListener('beforeunload', handleBeforeUnload);
+        }
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
     }, [state.isLive]);
 
     useEffect(() => {
@@ -80,7 +94,6 @@ const App: React.FC = () => {
     const containerClasses = [
         state.ui.showFontControls ? 'show-font-controls' : '',
     ].join(' ');
-
 
     return (
         <div className="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 antialiased min-h-screen">
