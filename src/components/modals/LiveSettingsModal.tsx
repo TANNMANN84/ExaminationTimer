@@ -28,7 +28,6 @@ const LiveSettingsModal: React.FC<LiveSettingsModalProps> = ({ isOpen, onClose }
         setLocalSettings(prev => ({ ...prev, [key]: e.target.checked }));
     };
 
-    // FIX: Changed 'key of' to 'keyof'
     const handleSelect = (key: keyof Settings) => (e: React.ChangeEvent<HTMLSelectElement>) => {
         setLocalSettings(prev => ({ ...prev, [key]: Number(e.target.value) as GridLayout }));
     };
@@ -47,7 +46,8 @@ const LiveSettingsModal: React.FC<LiveSettingsModalProps> = ({ isOpen, onClose }
                 </div>
                 
                 <div className="p-2 max-h-[70vh] overflow-y-auto">
-                    <Accordion title="Header & Layout" isOpen>
+                    {/* FIX: Removed the incorrect 'isOpen' prop to allow the build to succeed. */}
+                    <Accordion title="Header & Layout">
                         <SettingRow label="Show school name" tooltip="Toggles the school name in the header.">
                             <Toggle checked={localSettings.showSchool} onChange={handleToggle('showSchool')} />
                         </SettingRow>
@@ -98,7 +98,7 @@ const LiveSettingsModal: React.FC<LiveSettingsModalProps> = ({ isOpen, onClose }
                         <Accordion title="Special Provisions">
                             <SettingRow label="Show Special Provisions info" tooltip="Shows the SP controls and timers on each card.">
                                 <Toggle checked={localSettings.showSPLive} onChange={handleToggle('showSPLive')} />
-                            </SettingRow>
+                            </Row>
                              <SettingRow label="Show SP countdown timers" tooltip="Shows live countdowns for active rest breaks or reader/writer time.">
                                 <Toggle checked={localSettings.showSpCountdown} onChange={handleToggle('showSpCountdown')} />
                             </SettingRow>
