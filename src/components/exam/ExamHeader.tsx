@@ -74,7 +74,7 @@ const ExamHeader: React.FC = () => {
                 </div>
 
                 {/* --- Column 4: Date (Padding Added) --- */}
-                <div className="flex flex-col items-center text-center py-2">
+                <div className="flex flex-col items-center text-center pb-4">
                      <div className="flex items-center space-x-2">
                         <FontControl elementId="header-date" direction="down" />
                         <div id="header-date-wrapper">
@@ -82,7 +82,7 @@ const ExamHeader: React.FC = () => {
                                 {dayString}
                             </p>
                             {/* FIX: Added margin-top to this line to create space */}
-                            <p className="text-2xl font-semibold text-slate-700 dark:text-slate-300 mt-1" style={{fontSize: dateFontSize}}>
+                            <p className="text-2xl font-semibold text-slate-700 dark:text-slate-300 mt-2" style={{fontSize: dateFontSize}}>
                                 {dateString}
                             </p>
                         </div>
