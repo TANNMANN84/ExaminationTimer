@@ -28,7 +28,8 @@ const LiveSettingsModal: React.FC<LiveSettingsModalProps> = ({ isOpen, onClose }
         setLocalSettings(prev => ({ ...prev, [key]: e.target.checked }));
     };
 
-    const handleSelect = (key: key of Settings) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+    // FIX: Changed 'key of' to 'keyof'
+    const handleSelect = (key: keyof Settings) => (e: React.ChangeEvent<HTMLSelectElement>) => {
         setLocalSettings(prev => ({ ...prev, [key]: Number(e.target.value) as GridLayout }));
     };
 
@@ -46,7 +47,6 @@ const LiveSettingsModal: React.FC<LiveSettingsModalProps> = ({ isOpen, onClose }
                 </div>
                 
                 <div className="p-2 max-h-[70vh] overflow-y-auto">
-                    {/* FIX: Changed 'isOpenDefault' to 'isOpen' */}
                     <Accordion title="Header & Layout" isOpen>
                         <SettingRow label="Show school name" tooltip="Toggles the school name in the header.">
                             <Toggle checked={localSettings.showSchool} onChange={handleToggle('showSchool')} />
