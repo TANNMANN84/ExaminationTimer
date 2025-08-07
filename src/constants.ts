@@ -1,5 +1,5 @@
 import type { Settings, ExamPresetCategory } from './types';
-import schoolCrest from './assets/school_crest.png'; // 1. ADDED THIS IMPORT
+import schoolCrest from './assets/school_crest.png';
 
 export const DEFAULT_SETTINGS: Settings = {
     sessionTitle: 'Trial HSC Examinations',
@@ -25,13 +25,24 @@ export const DEFAULT_SETTINGS: Settings = {
     fontSizes: {
         'header-session-title': 46,
         'header-school-info': 38,
-        'header-centre-number': 38, 
-        'header-time': 150,
+        'header-centre-number': 22,
+        'header-time': 154,
         'header-date': 56,
     }
 };
 
-// --- NO CHANGES BELOW THIS LINE ---
+// --- ADDED THE COLOR PALETTE ---
+export const CARD_COLORS = [
+    { name: 'Default', bg: 'bg-white', text: 'text-slate-900', border: 'border-slate-200', darkBg: 'dark:bg-slate-800', darkText: 'dark:text-slate-100', darkBorder: 'dark:border-slate-700' },
+    { name: 'Blue', bg: 'bg-blue-100', text: 'text-blue-900', border: 'border-blue-200', darkBg: 'dark:bg-blue-900/40', darkText: 'dark:text-blue-100', darkBorder: 'dark:border-blue-800' },
+    { name: 'Green', bg: 'bg-green-100', text: 'text-green-900', border: 'border-green-200', darkBg: 'dark:bg-green-900/40', darkText: 'dark:text-green-100', darkBorder: 'dark:border-green-800' },
+    { name: 'Yellow', bg: 'bg-yellow-100', text: 'text-yellow-900', border: 'border-yellow-200', darkBg: 'dark:bg-yellow-900/40', darkText: 'dark:text-yellow-100', darkBorder: 'dark:border-yellow-800' },
+    { name: 'Red', bg: 'bg-red-100', text: 'text-red-900', border: 'border-red-200', darkBg: 'dark:bg-red-900/40', darkText: 'dark:text-red-100', darkBorder: 'dark:border-red-800' },
+    { name: 'Purple', bg: 'bg-purple-100', text: 'text-purple-900', border: 'border-purple-200', darkBg: 'dark:bg-purple-900/40', darkText: 'dark:text-purple-100', darkBorder: 'dark:border-purple-800' },
+    { name: 'Pink', bg: 'bg-pink-100', text: 'text-pink-900', border: 'border-pink-200', darkBg: 'dark:bg-pink-900/40', darkText: 'dark:text-pink-100', darkBorder: 'dark:border-pink-800' },
+];
+// --- END OF NEW CODE ---
+
 
 export const SESSION_PRESETS: Record<string, Partial<Settings>> = {
     'HSC Examinations': { showCentre: true, showCrest: false, gridLayout: 3, showTimes: true, showSchool: true },
@@ -40,7 +51,6 @@ export const SESSION_PRESETS: Record<string, Partial<Settings>> = {
     'Half Yearly Examinations': { showSchool: true, showCrest: true, showStatus: true, gridLayout: 3, showTimes: true },
     'Preliminary Examinations': { showSchool: true, showCrest: true, showStatus: true, gridLayout: 3, showTimes: true },
     'Yearly Examinations': { showSchool: true, showCrest: true, showStatus: true, gridLayout: 3, showTimes: true },
-    // Standardised Test Presets
     'NAPLAN': { gridLayout: 4, disableTimers: true, showTimes: false, showStatus: false, showCrest: true, showSchool: true, specialProvisions: false },
     'VALID': { gridLayout: 4, disableTimers: true, showTimes: false, showStatus: false, showCrest: true, showSchool: true, specialProvisions: false },
     'Check-In Assessment': { gridLayout: 4, disableTimers: true, showTimes: false, showStatus: false, showCrest: true, showSchool: true, specialProvisions: false },
@@ -69,7 +79,6 @@ export const PRESET_ALIASES: Record<string, string> = {
     'Preliminary Examinations': 'Exit Examinations',
 };
 
-// ... (The rest of your EXAM_PRESETS object remains unchanged)
 export const EXAM_PRESETS: Record<string, ExamPresetCategory> = {
     "Trial HSC Examinations": {
         "English": [
