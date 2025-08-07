@@ -19,8 +19,9 @@ export interface Exam {
     writeHrs: number;
     writeMins: number;
     optionalInfo: string;
-    hasAccessCode?: boolean; // For Standardised tests
-    accessCode?: string; // For Standardised tests
+    hasAccessCode?: boolean;
+    accessCode?: string;
+    color?: string; // --- ADD THIS LINE ---
     sp: SPSettings;
     // Live state
     status: 'running' | 'finished' | 'abandoned';
@@ -33,7 +34,7 @@ export interface Exam {
     writeEndTime?: number;
 }
 
-// New type for calculated values, used by hooks and components
+// ... (the rest of the file remains the same)
 export interface CalculatedExam extends Exam {
     calculatedStatus: string;
     timeRemaining: number;
@@ -86,7 +87,7 @@ export interface UiState {
     disruptionTargetId: string | null; // For individual exam disruptions
 }
 
-export type ModalType = 'preset' | 'exam' | 'confirm' | 'autoStart' | 'emergency' | 'liveSettings';
+export type ModalType = 'preset' | 'exam' | 'confirm' | 'autoStart' | 'emergency' | 'liveSettings' | 'standardPreset' | 'naplanWizard' | 'genius' | 'colour';
 export type ConfirmActionType = 'deleteExam' | 'clearAll' | 'resetAll' | 'endSession' | 'endAndReset' | 'abandon' | 'editLiveExam' | 'import';
 
 export type SessionMode = 'examinations' | 'standardised';
