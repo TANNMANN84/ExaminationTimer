@@ -1,0 +1,47 @@
+import React from 'react';
+import Modal from '../ui/Modal';
+import { CARD_COLORS } from '../../constants';
+
+interface ColourModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSelectColour: (colorName: string) => void;
+    currentColour: string;
+}
+
+const ColourModal: React.FC<ColourModalProps> = ({ isOpen, onClose, onSelectColour, currentColour }) => {
+
+    const handleSelect = (colorName: string) => {
+        onSelectColour(colorName);
+        onClose();
+    };
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} ariaLabel="Select Card Colour">
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-md">
+                <div className="p-6">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">Select Card Colour</h2>
+                    <div className="grid grid-cols-4 gap-4">
+                        {CARD_COLORS.map(color => (
+                            <div key={color.name} className="flex flex-col items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSelect(color.name)}
+                                    className={`w-16 h-16 rounded-lg ${color.bg} ${color.border} ${color.darkBg} ${color.darkBorder} border-2 transition-transform transform hover:scale-110 flex items-center justify-center`}
+                                    title={color.name}
+                                >
+                                    {currentColour === color.name && (
+                                        <div className={`w-6 h-6 rounded-full ${color.name === 'Default' ? 'bg-slate-500' : 'bg-white'}`}></div>
+                                    )}
+                                </button>
+                                <p className="text-sm text-slate-600 dark:text-slate-400">{color.name}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </Modal>
+    );
+};
+
+export default ColourModal;
