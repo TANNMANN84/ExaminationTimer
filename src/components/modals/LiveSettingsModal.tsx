@@ -28,7 +28,7 @@ const LiveSettingsModal: React.FC<LiveSettingsModalProps> = ({ isOpen, onClose }
         setLocalSettings(prev => ({ ...prev, [key]: e.target.checked }));
     };
 
-    const handleSelect = (key: keyof Settings) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleSelect = (key: key of Settings) => (e: React.ChangeEvent<HTMLSelectElement>) => {
         setLocalSettings(prev => ({ ...prev, [key]: Number(e.target.value) as GridLayout }));
     };
 
@@ -46,8 +46,8 @@ const LiveSettingsModal: React.FC<LiveSettingsModalProps> = ({ isOpen, onClose }
                 </div>
                 
                 <div className="p-2 max-h-[70vh] overflow-y-auto">
-                    {/* --- Accordion 1: Header & Layout --- */}
-                    <Accordion title="Header & Layout" isOpenDefault>
+                    {/* FIX: Changed 'isOpenDefault' to 'isOpen' */}
+                    <Accordion title="Header & Layout" isOpen>
                         <SettingRow label="Show school name" tooltip="Toggles the school name in the header.">
                             <Toggle checked={localSettings.showSchool} onChange={handleToggle('showSchool')} />
                         </SettingRow>
@@ -77,7 +77,6 @@ const LiveSettingsModal: React.FC<LiveSettingsModalProps> = ({ isOpen, onClose }
                         </SettingRow>
                     </Accordion>
 
-                    {/* --- Accordion 2: Exam Card Display --- */}
                     {!isStandardised && (
                         <Accordion title="Exam Card Display">
                             <SettingRow label="Colour-coded alerts" tooltip={<ColorAlertsGraphic />}>
@@ -95,7 +94,6 @@ const LiveSettingsModal: React.FC<LiveSettingsModalProps> = ({ isOpen, onClose }
                         </Accordion>
                     )}
                     
-                    {/* --- Accordion 3: Special Provisions --- */}
                     {state.settings.specialProvisions && !isStandardised && (
                         <Accordion title="Special Provisions">
                             <SettingRow label="Show Special Provisions info" tooltip="Shows the SP controls and timers on each card.">
