@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useAppContext } from './context/AppContext';
 import WelcomeModal from './components/modals/WelcomeModal';
 import SetupPage from './components/pages/SetupPage';
@@ -90,7 +90,6 @@ const App: React.FC = () => {
 
                 <Footer />
 
-                {/* Each modal component is rendered with the correct 'isOpen' prop */}
                 <WelcomeModal
                     isOpen={state.ui.activeModal === 'welcome'}
                     onClose={handleWelcomeClose}
