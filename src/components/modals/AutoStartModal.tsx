@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../../context/AppContext';
-import { format } from 'date-fns';
-import { requestFullscreen, activateWakelock } from '../../utils/display'; // Import display functions
+import { requestFullscreen, activateWakelock } from '../../utils/display';
 
 interface Props {
     onClose: () => void;
@@ -9,21 +8,18 @@ interface Props {
 
 const AutoStartModal: React.FC<Props> = ({ onClose }) => {
     const { dispatch } = useAppContext();
-    const [time, setTime] = useState(format(new Date(), 'HH:mm'));
+    // Use native Date methods to get 'HH:MM' format, removing date-fns
+    const [time, setTime] = useState(new Date().toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false }));
 
-    const handleSetAutoStart = async () => { // Make the function async
+    const handleSetAutoStart = async () => {
         const [hours, minutes] = time.split(':');
         if (hours && minutes) {
-            // --- This is the new logic ---
-            // First, activate fullscreen and wakelock from the user click
             await requestFullscreen();
             await activateWakelock();
-            // --- End of new logic ---
 
             const targetTime = new Date();
             targetTime.setHours(Number(hours), Number(minutes), 0, 0);
 
-            // If the time is in the past, set it for the next day
             if (targetTime.getTime() < Date.now()) {
                 targetTime.setDate(targetTime.getDate() + 1);
             }
