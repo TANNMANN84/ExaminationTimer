@@ -3,6 +3,7 @@ import type { AppState, Exam, Action, SPSettings } from '../types';
 import { DEFAULT_SETTINGS, SESSION_PRESETS, EXAMINATION_PRESET_TITLES, STANDARDISED_TEST_TITLES } from '../constants';
 import { produce } from 'immer';
 import { exportSessionLog } from '../utils/export';
+import { requestFullscreen, activateWakelock } from '../utils/display'; // <-- This import is added
 
 // --- Helper Functions ---
 const recalculateAllExamEndTimes = (draft: AppState) => {
@@ -364,6 +365,7 @@ const init = (initialState: AppState): AppState => {
                 showFontControls: loaded.ui?.showFontControls || false,
             };
 
+            // Restore the session if it was live
             const isLive = loaded.isLive || false;
             const currentPage = isLive ? 'exam' : 'setup';
 
@@ -406,6 +408,31 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         state.ui.showTooltips, state.ui.fontLockEnabled, state.ui.fabsCollapsed, 
         state.ui.theme, state.ui.showFontControls
     ]);
+
+    // This is the new block to handle the autostart functionality
+    useEffect(() => {
+        let interval: NodeJS.Timeout | undefined;
+
+        if (state.autoStartTargetTime && !state.isLive) {
+            interval = setInterval(async () => {
+                if (Date.now() >= state.autoStartTargetTime!) {
+                    
+                    await requestFullscreen();
+                    await activateWakelock();
+
+                    dispatch({ type: 'START_LIVE_SESSION' });
+                    
+                    clearInterval(interval);
+                }
+            }, 500);
+        }
+
+        return () => {
+            if (interval) {
+                clearInterval(interval);
+            }
+        };
+    }, [state.autoStartTargetTime, state.isLive, dispatch]);
 
     return (
         <AppContext.Provider value={{ state, dispatch }}>
