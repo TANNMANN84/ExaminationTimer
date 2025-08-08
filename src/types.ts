@@ -71,6 +71,21 @@ export interface Settings {
 
 export type Theme = 'light' | 'dark' | 'system';
 
+// This is the corrected ModalType with all possible values
+export type ModalType = 
+    | 'preset' 
+    | 'exam' 
+    | 'confirm' 
+    | 'autoStart' 
+    | 'emergency' 
+    | 'liveSettings'
+    | 'welcome'
+    | 'standardPreset'
+    | 'naplanWizard'
+    | 'genius';
+
+export type ConfirmActionType = 'deleteExam' | 'clearAll' | 'resetAll' | 'endSession' | 'endAndReset' | 'abandon' | 'editLiveExam' | 'import';
+
 export interface UiState {
     showTooltips: boolean;
     fabsCollapsed: boolean;
@@ -85,9 +100,6 @@ export interface UiState {
     editingExamId: string | null;
     disruptionTargetId: string | null; // For individual exam disruptions
 }
-
-export type ModalType = 'preset' | 'exam' | 'confirm' | 'autoStart' | 'emergency' | 'liveSettings';
-export type ConfirmActionType = 'deleteExam' | 'clearAll' | 'resetAll' | 'endSession' | 'endAndReset' | 'abandon' | 'editLiveExam' | 'import';
 
 export type SessionMode = 'examinations' | 'standardised';
 
