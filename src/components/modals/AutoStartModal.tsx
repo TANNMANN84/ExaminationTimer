@@ -1,53 +1,67 @@
 import React, { useState } from 'react';
-import Modal from '../ui/Modal';
 import { useAppContext } from '../../context/AppContext';
+import { format } from 'date-fns';
+import { requestFullscreen, activateWakelock } from '../../utils/display'; // Import display functions
 
-interface AutoStartModalProps {
-    isOpen: boolean;
+interface Props {
     onClose: () => void;
 }
 
-const AutoStartModal: React.FC<AutoStartModalProps> = ({ isOpen, onClose }) => {
+const AutoStartModal: React.FC<Props> = ({ onClose }) => {
     const { dispatch } = useAppContext();
-    const [time, setTime] = useState('');
-    const [error, setError] = useState('');
+    const [time, setTime] = useState(format(new Date(), 'HH:mm'));
 
-    const handleSetTime = () => {
-        if (!time) {
-            setError('Please select a valid time.');
-            return;
+    const handleSetAutoStart = async () => { // Make the function async
+        const [hours, minutes] = time.split(':');
+        if (hours && minutes) {
+            // --- This is the new logic ---
+            // First, activate fullscreen and wakelock from the user click
+            await requestFullscreen();
+            await activateWakelock();
+            // --- End of new logic ---
+
+            const targetTime = new Date();
+            targetTime.setHours(Number(hours), Number(minutes), 0, 0);
+
+            // If the time is in the past, set it for the next day
+            if (targetTime.getTime() < Date.now()) {
+                targetTime.setDate(targetTime.getDate() + 1);
+            }
+
+            dispatch({ type: 'SET_AUTO_START_TIME', payload: targetTime.getTime() });
+            onClose();
         }
-        const [hours, minutes] = time.split(':').map(Number);
-        const now = new Date();
-        const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-
-        if (startTime <= now) {
-            setError('Start time must be in the future.');
-            return;
-        }
-
-        dispatch({ type: 'SET_AUTO_START_TIME', payload: startTime.getTime() });
-        setError('');
-        onClose();
     };
-    
+
     return (
-        <Modal isOpen={isOpen} onClose={onClose} ariaLabel="Set Auto-Start Time">
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 w-full max-w-sm">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">Set Auto-Start Time</h2>
+        <div className="p-6 bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-sm">
+            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">Set Auto-Start Time</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                The session will automatically commence at the specified time.
+            </p>
+            <div className="flex justify-center items-center mb-6">
                 <input
                     type="time"
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
-                    className="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 text-lg"
+                    className="p-2 border rounded-md text-2xl font-mono bg-slate-50 dark:bg-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600"
                 />
-                {error && <p className="text-red-500 text-sm mt-2 h-4">{error}</p>}
-                <div className="flex justify-end space-x-4 mt-6">
-                    <button onClick={onClose} className="px-4 py-2 bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-md hover:bg-slate-300 dark:hover:bg-slate-500 transition">Cancel</button>
-                    <button onClick={handleSetTime} className="px-4 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition">Set Time</button>
-                </div>
             </div>
-        </Modal>
+            <div className="flex justify-end gap-3">
+                <button
+                    onClick={onClose}
+                    className="px-4 py-2 rounded-md text-slate-700 dark:text-slate-200 bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 transition-colors"
+                >
+                    Cancel
+                </button>
+                <button
+                    onClick={handleSetAutoStart}
+                    className="px-4 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                >
+                    Set Time & Start
+                </button>
+            </div>
+        </div>
     );
 };
 
