@@ -16,22 +16,12 @@ import DisruptionModal from './components/modals/DisruptionModal';
 import GeniusModal from './components/modals/GeniusModal';
 import NaplanWizardModal from './components/modals/NaplanWizardModal';
 import StandardPresetModal from './components/modals/StandardPresetModal';
-import { SettingsModal } from './components/modals/SettingsModal';
 import { exportSession } from './utils/export';
 
 const App: React.FC = () => {
     const { state, dispatch } = useAppContext();
-    const [welcomeModalOpen, setWelcomeModalOpen] = useState(false);
 
     useWakeLock(state.isLive);
-
-    useEffect(() => {
-        // Corrected logic for showing the Welcome Modal
-        const hasSeenWelcome = sessionStorage.getItem('welcomeShown');
-        if (!hasSeenWelcome) {
-            setWelcomeModalOpen(true);
-        }
-    }, []);
 
     useEffect(() => {
         const handleSystemThemeChange = () => {
@@ -62,6 +52,13 @@ const App: React.FC = () => {
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     }, [state.isLive]);
 
+    useEffect(() => {
+        const welcomeShown = sessionStorage.getItem('welcomeShown');
+        if (!welcomeShown) {
+            dispatch({ type: 'SET_ACTIVE_MODAL', payload: 'welcome' });
+        }
+    }, [dispatch]);
+
     useHotkeys('ctrl+s, command+s', (e) => {
         e.preventDefault();
         exportSession(state);
@@ -71,10 +68,14 @@ const App: React.FC = () => {
         e.preventDefault();
         document.getElementById('import-file-input')?.click();
     });
+    
+    const handleCloseModal = () => {
+        dispatch({ type: 'SET_ACTIVE_MODAL', payload: null });
+    };
 
     const handleWelcomeClose = () => {
-        setWelcomeModalOpen(false);
         sessionStorage.setItem('welcomeShown', 'true');
+        handleCloseModal();
     };
 
     const containerClasses = [
@@ -89,9 +90,9 @@ const App: React.FC = () => {
 
                 <Footer />
 
-                {/* The individual modal components are rendered here with the correct props */}
+                {/* Each modal component is rendered with the correct 'isOpen' prop */}
                 <WelcomeModal
-                    isOpen={welcomeModalOpen}
+                    isOpen={state.ui.activeModal === 'welcome'}
                     onClose={handleWelcomeClose}
                 />
                 <Tooltip />
@@ -100,39 +101,35 @@ const App: React.FC = () => {
                 
                 <PresetModal
                     isOpen={state.ui.activeModal === 'preset'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
+                    onClose={handleCloseModal}
                 />
                 <ExamModal 
                     isOpen={state.ui.activeModal === 'exam'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
+                    onClose={handleCloseModal}
                 />
                 <LiveSettingsModal
                     isOpen={state.ui.activeModal === 'liveSettings'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
+                    onClose={handleCloseModal}
                 />
                 <AutoStartModal
                     isOpen={state.ui.activeModal === 'autoStart'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
+                    onClose={handleCloseModal}
                 />
                 <DisruptionModal
                     isOpen={state.ui.activeModal === 'emergency'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
+                    onClose={handleCloseModal}
                 />
                 <GeniusModal 
                     isOpen={state.ui.activeModal === 'genius'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
+                    onClose={handleCloseModal}
                 />
                  <NaplanWizardModal 
                     isOpen={state.ui.activeModal === 'naplanWizard'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
+                    onClose={handleCloseModal}
                 />
                  <StandardPresetModal 
                     isOpen={state.ui.activeModal === 'standardPreset'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
-                />
-                 <SettingsModal 
-                    isOpen={false} // This seems to be unused, keeping it as-is from original
-                    onClose={() => {}}
+                    onClose={handleCloseModal}
                 />
             </div>
         </div>
