@@ -1,138 +1,104 @@
-import React, { useEffect, useState } from 'react';
-import { useAppContext } from './context/AppContext';
-import WelcomeModal from './components/modals/WelcomeModal';
+import { useEffect } from 'react';
+import { AppProvider, useAppContext } from './context/AppContext';
+import { TooltipProvider } from './context/TooltipContext';
 import SetupPage from './components/pages/SetupPage';
 import ExamPage from './components/pages/ExamPage';
-import Footer from './components/ui/Footer';
-import { useWakeLock } from './hooks/useWakeLock';
-import { Tooltip } from './components/ui/Tooltip';
-import { useHotkeys } from 'react-hotkeys-hook';
-import ConfirmModal from './components/modals/ConfirmModal';
-import PresetModal from './components/modals/PresetModal';
+import Modal from './components/ui/Modal';
+import WelcomeModal from './components/modals/WelcomeModal';
 import ExamModal from './components/modals/ExamModal';
+import PresetModal from './components/modals/PresetModal';
+import StandardPresetModal from './components/modals/StandardPresetModal';
+import NaplanWizardModal from './components/modals/NaplanWizardModal';
+import ConfirmModal from './components/modals/ConfirmModal';
+import DisruptionModal from './components/modals/DisruptionModal';
 import LiveSettingsModal from './components/modals/LiveSettingsModal';
 import AutoStartModal from './components/modals/AutoStartModal';
-import DisruptionModal from './components/modals/DisruptionModal';
-import { exportSession } from './utils/export';
+import GeniusModal from './components/modals/GeniusModal';
 
-const App: React.FC = () => {
+const AppContent = () => {
     const { state, dispatch } = useAppContext();
-    const [welcomeModalOpen, setWelcomeModalOpen] = useState(false);
-
-    useWakeLock(state.isLive);
+    const { currentPage, ui: { activeModal, confirmAction }, exams } = state;
 
     useEffect(() => {
-        const handleSystemThemeChange = () => {
-            if (state.ui.theme === 'dark' || 
-                (state.ui.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-            ) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        };
+        // Apply theme class to the root element
+        const root = window.document.documentElement;
+        const currentTheme = state.ui.theme;
 
-        handleSystemThemeChange();
-        const systemThemeWatcher = window.matchMedia('(prefers-color-scheme: dark)');
-        systemThemeWatcher.addEventListener('change', handleSystemThemeChange);
-        return () => {
-            systemThemeWatcher.removeEventListener('change', handleSystemThemeChange);
-        };
+        if (currentTheme === 'dark' || (currentTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
     }, [state.ui.theme]);
 
     useEffect(() => {
-        const manageFullscreen = async () => {
-            try {
-                if (state.isLive && !document.fullscreenElement) {
-                    await document.documentElement.requestFullscreen();
-                } else if (!state.isLive && document.fullscreenElement) {
-                    await document.exitFullscreen();
-                }
-            } catch (err: any) {
-                 console.error(`Fullscreen Error: ${err.message} (${err.name})`);
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (state.isLive) {
+                const confirmationMessage = 'A session is currently live. Are you sure you want to leave? This will end the session.';
+                e.returnValue = confirmationMessage;
+                return confirmationMessage;
             }
         };
-        manageFullscreen();
-    }, [state.isLive]);
 
-    // --- FIX: ADDED REFRESH WARNING FOR LIVE SESSIONS ---
-    useEffect(() => {
-        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-            event.preventDefault();
-            event.returnValue = 'Are you sure you want to leave? Your live exam session will be interrupted.';
-        };
-
-        if (state.isLive) {
-            window.addEventListener('beforeunload', handleBeforeUnload);
-        }
-
-        return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     }, [state.isLive]);
 
     useEffect(() => {
-        if (!sessionStorage.getItem('welcomeShown')) {
-            setWelcomeModalOpen(true);
+        // Show welcome modal only if there are no exams and it hasn't been shown before
+        if (exams.length === 0 && localStorage.getItem('hasSeenWelcomeModal') !== 'true') {
+            dispatch({ type: 'SET_ACTIVE_MODAL', payload: 'welcome' });
+            localStorage.setItem('hasSeenWelcomeModal', 'true');
         }
-    }, []);
+    }, [exams.length, dispatch]);
 
-    useHotkeys('ctrl+s, command+s', (e: KeyboardEvent) => {
-        e.preventDefault();
-        exportSession(state);
-    }, [state]);
-     useHotkeys('ctrl+o, command+o', (e: KeyboardEvent) => {
-        e.preventDefault();
-        document.getElementById('import-file-input')?.click();
-    });
-
-    const handleWelcomeClose = () => {
-        sessionStorage.setItem('welcomeShown', 'true');
-        setWelcomeModalOpen(false);
+    const handleCloseModal = () => {
+        dispatch({ type: 'SET_ACTIVE_MODAL', payload: null });
     };
 
-    const containerClasses = [
-        state.ui.showFontControls ? 'show-font-controls' : '',
-    ].join(' ');
+    const handleConfirm = () => {
+        if (confirmAction.type) {
+            dispatch(confirmAction);
+            dispatch({ type: 'SET_CONFIRM_ACTION', payload: { type: null } });
+        }
+        handleCloseModal();
+    };
 
     return (
-        <div className="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 antialiased min-h-screen">
-            <div id="app-container" className={`group ${containerClasses} pb-16`}>
-                {state.currentPage === 'setup' && <SetupPage />}
-                {state.currentPage === 'exam' && <ExamPage />}
+        <>
+            {currentPage === 'setup' && <SetupPage />}
+            {currentPage === 'exam' && <ExamPage />}
 
-                <Footer />
+            <Modal isOpen={!!activeModal} onClose={handleCloseModal}>
+                {activeModal === 'welcome' && <WelcomeModal onClose={handleCloseModal} />}
+                {activeModal === 'exam' && <ExamModal onClose={handleCloseModal} />}
+                {activeModal === 'preset' && <PresetModal onClose={handleCloseModal} />}
+                {activeModal === 'standardPreset' && <StandardPresetModal onClose={handleCloseModal} />}
+                {activeModal === 'naplanWizard' && <NaplanWizardModal onClose={handleCloseModal} />}
+                {activeModal === 'emergency' && <DisruptionModal onClose={handleCloseModal} />}
+                {activeModal === 'liveSettings' && <LiveSettingsModal onClose={handleCloseModal} />}
+                {activeModal === 'autoStart' && <AutoStartModal onClose={handleCloseModal} />}
+                {activeModal === 'confirm' && (
+                    <ConfirmModal
+                        action={confirmAction.type || ''}
+                        onConfirm={handleConfirm}
+                        onCancel={() => dispatch({ type: 'SET_CONFIRM_ACTION', payload: { type: null } })}
+                    />
+                )}
+                 {activeModal === 'genius' && <GeniusModal onClose={handleCloseModal} />}
+            </Modal>
+        </>
+    );
+};
 
-                <WelcomeModal
-                    isOpen={welcomeModalOpen}
-                    onClose={handleWelcomeClose}
-                />
-                <Tooltip />
 
-                <ConfirmModal />
-                
-                <PresetModal
-                    isOpen={state.ui.activeModal === 'preset'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
-                />
-                <ExamModal 
-                    isOpen={state.ui.activeModal === 'exam'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
-                />
-                <LiveSettingsModal
-                    isOpen={state.ui.activeModal === 'liveSettings'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
-                />
-                <AutoStartModal
-                    isOpen={state.ui.activeModal === 'autoStart'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
-                />
-                <DisruptionModal
-                    isOpen={state.ui.activeModal === 'emergency'}
-                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
-                />
-            </div>
-        </div>
+const App = () => {
+    return (
+        <AppProvider>
+            <TooltipProvider>
+                <AppContent />
+            </TooltipProvider>
+        </AppProvider>
     );
 };
 
