@@ -22,15 +22,18 @@ export interface Exam {
     hasAccessCode?: boolean; // For Standardised tests
     accessCode?: string; // For Standardised tests
     sp: SPSettings;
+    // Live state
     status: 'running' | 'finished' | 'abandoned';
     isPaused: boolean;
     pauseStartTime: number | null;
     pauseDurationTotal: number; // in milliseconds
+    // Calculated times
     startTime?: number;
     readEndTime?: number;
     writeEndTime?: number;
 }
 
+// New type for calculated values, used by hooks and components
 export interface CalculatedExam extends Exam {
     calculatedStatus: string;
     timeRemaining: number;
@@ -38,6 +41,7 @@ export interface CalculatedExam extends Exam {
     readerWriterTimeRemaining: number;
     cardClass: string;
 }
+
 
 export type GridLayout = 1 | 2| 3 | 4 | 5;
 
@@ -67,20 +71,6 @@ export interface Settings {
 
 export type Theme = 'light' | 'dark' | 'system';
 
-export type ModalType = 
-    | 'preset' 
-    | 'exam' 
-    | 'confirm' 
-    | 'autoStart' 
-    | 'emergency' 
-    | 'liveSettings' 
-    | 'welcome' 
-    | 'standardPreset' 
-    | 'naplanWizard' 
-    | 'genius';
-
-export type ConfirmActionType = 'deleteExam' | 'clearAll' | 'resetAll' | 'endSession' | 'endAndReset' | 'abandon' | 'editLiveExam' | 'import';
-
 export interface UiState {
     showTooltips: boolean;
     fabsCollapsed: boolean;
@@ -93,8 +83,11 @@ export interface UiState {
         data?: any;
     };
     editingExamId: string | null;
-    disruptionTargetId: string | null;
+    disruptionTargetId: string | null; // For individual exam disruptions
 }
+
+export type ModalType = 'preset' | 'exam' | 'confirm' | 'autoStart' | 'emergency' | 'liveSettings';
+export type ConfirmActionType = 'deleteExam' | 'clearAll' | 'resetAll' | 'endSession' | 'endAndReset' | 'abandon' | 'editLiveExam' | 'import';
 
 export type SessionMode = 'examinations' | 'standardised';
 
@@ -102,7 +95,7 @@ export interface AppState {
     currentPage: 'setup' | 'exam';
     sessionMode: SessionMode;
     isLive: boolean;
-    isPaused: boolean;
+    isPaused: boolean; // Global pause
     pauseStartTime: number | null;
     pauseDurationTotal: number;
     autoStartTargetTime: number | null;
@@ -133,6 +126,7 @@ export type Action =
     | { type: 'SET_ACTIVE_MODAL', payload: AppState['ui']['activeModal'] }
     | { type: 'SET_CONFIRM_ACTION', payload: AppState['ui']['confirmAction'] }
     | { type: 'SET_EDITING_EXAM_ID', payload: string | null }
+    // New Actions for full functionality
     | { type: 'UPDATE_FONT_SIZE', payload: { elementId: string, direction: 'up' | 'down' } }
     | { type: 'TOGGLE_FONT_LOCK' }
     | { type: 'TOGGLE_FABS' }
@@ -141,12 +135,13 @@ export type Action =
     | { type: 'CANCEL_AUTO_START' }
     | { type: 'PAUSE_SESSION', payload: { justification: string, examId?: string } }
     | { type: 'RESUME_SESSION', payload: { examId?: string } }
-    | { type: 'ABANDON_EXAM'; payload: { examId: string, justification: string } }
+    | { type: 'ABANDON_EXAM', payload: { justification: string, examId: string } }
     | { type: 'TOGGLE_REST_BREAK', payload: string }
     | { type: 'TOGGLE_READER_WRITER', payload: string }
     | { type: 'SET_DISRUPTION_TARGET', payload: string | null }
     | { type: 'FINISH_EXAM', payload: string };
 
+// --- Stricter types for presets ---
 export type ExamPresetItem = {
   name: string;
   readMins?: number;
