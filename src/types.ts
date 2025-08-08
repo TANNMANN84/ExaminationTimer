@@ -22,12 +22,10 @@ export interface Exam {
     hasAccessCode?: boolean; // For Standardised tests
     accessCode?: string; // For Standardised tests
     sp: SPSettings;
-    // Live state
     status: 'running' | 'finished' | 'abandoned';
     isPaused: boolean;
     pauseStartTime: number | null;
     pauseDurationTotal: number; // in milliseconds
-    // Calculated times
     startTime?: number;
     readEndTime?: number;
     writeEndTime?: number;
@@ -69,7 +67,6 @@ export interface Settings {
 
 export type Theme = 'light' | 'dark' | 'system';
 
-// This is the corrected ModalType, including all possible modal names.
 export type ModalType = 
     | 'preset' 
     | 'exam' 
@@ -105,7 +102,7 @@ export interface AppState {
     currentPage: 'setup' | 'exam';
     sessionMode: SessionMode;
     isLive: boolean;
-    isPaused: boolean; // Global pause
+    isPaused: boolean;
     pauseStartTime: number | null;
     pauseDurationTotal: number;
     autoStartTargetTime: number | null;
