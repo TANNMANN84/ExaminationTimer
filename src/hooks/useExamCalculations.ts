@@ -18,19 +18,9 @@ export const useExamCalculations = (): { examsToRender: CalculatedExam[] } => {
             // --- Determine Start/End Times ---
             if (isLive) {
                 // In a live session, times are already fixed in the state, so we do nothing here.
-            } else if (autoStartTargetTime) {
-                // **** THIS BLOCK IS NEW ****
-                // In preview mode WITH autostart, calculate times based on the autostart target.
-                const sessionStartTime = autoStartTargetTime;
-                const readMillis = exam.readMins * 60000;
-                const writeMillis = ((exam.writeHrs * 60) + exam.writeMins + (exam.sp.extraTime || 0)) * 60000;
-
-                calculatedExam.startTime = sessionStartTime;
-                calculatedExam.readEndTime = sessionStartTime + readMillis;
-                calculatedExam.writeEndTime = calculatedExam.readEndTime + writeMillis;
             } else {
-                // In preview mode WITHOUT autostart, we don't calculate start/end times.
-                // The component will show placeholders instead.
+                // In preview mode, we don't calculate start/end times.
+                // The component will show placeholders instead, which is correct.
             }
             
             const { readEndTime = 0, writeEndTime = 0 } = calculatedExam;
