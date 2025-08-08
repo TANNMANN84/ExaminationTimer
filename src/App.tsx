@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppContext } from './context/AppContext';
 import WelcomeModal from './components/modals/WelcomeModal';
 import SetupPage from './components/pages/SetupPage';
@@ -13,13 +13,11 @@ import ExamModal from './components/modals/ExamModal';
 import LiveSettingsModal from './components/modals/LiveSettingsModal';
 import AutoStartModal from './components/modals/AutoStartModal';
 import DisruptionModal from './components/modals/DisruptionModal';
-import GeniusModal from './components/modals/GeniusModal';
-import NaplanWizardModal from './components/modals/NaplanWizardModal';
-import StandardPresetModal from './components/modals/StandardPresetModal';
 import { exportSession } from './utils/export';
 
 const App: React.FC = () => {
     const { state, dispatch } = useAppContext();
+    const [welcomeModalOpen, setWelcomeModalOpen] = useState(false);
 
     useWakeLock(state.isLive);
 
@@ -35,47 +33,62 @@ const App: React.FC = () => {
         };
 
         handleSystemThemeChange();
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        mediaQuery.addEventListener('change', handleSystemThemeChange);
-
-        return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+        const systemThemeWatcher = window.matchMedia('(prefers-color-scheme: dark)');
+        systemThemeWatcher.addEventListener('change', handleSystemThemeChange);
+        return () => {
+            systemThemeWatcher.removeEventListener('change', handleSystemThemeChange);
+        };
     }, [state.ui.theme]);
-    
+
     useEffect(() => {
-        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            if (state.isLive) {
-                e.preventDefault();
-                e.returnValue = 'A live session is active. Are you sure you want to leave?';
+        const manageFullscreen = async () => {
+            try {
+                if (state.isLive && !document.fullscreenElement) {
+                    await document.documentElement.requestFullscreen();
+                } else if (!state.isLive && document.fullscreenElement) {
+                    await document.exitFullscreen();
+                }
+            } catch (err: any) {
+                 console.error(`Fullscreen Error: ${err.message} (${err.name})`);
             }
         };
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+        manageFullscreen();
+    }, [state.isLive]);
+
+    // --- FIX: ADDED REFRESH WARNING FOR LIVE SESSIONS ---
+    useEffect(() => {
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            event.preventDefault();
+            event.returnValue = 'Are you sure you want to leave? Your live exam session will be interrupted.';
+        };
+
+        if (state.isLive) {
+            window.addEventListener('beforeunload', handleBeforeUnload);
+        }
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
     }, [state.isLive]);
 
     useEffect(() => {
-        const welcomeShown = sessionStorage.getItem('welcomeShown');
-        if (!welcomeShown) {
-            dispatch({ type: 'SET_ACTIVE_MODAL', payload: 'welcome' });
+        if (!sessionStorage.getItem('welcomeShown')) {
+            setWelcomeModalOpen(true);
         }
-    }, [dispatch]);
+    }, []);
 
-    useHotkeys('ctrl+s, command+s', (e) => {
+    useHotkeys('ctrl+s, command+s', (e: KeyboardEvent) => {
         e.preventDefault();
         exportSession(state);
     }, [state]);
-
-    useHotkeys('ctrl+o, command+o', (e) => {
+     useHotkeys('ctrl+o, command+o', (e: KeyboardEvent) => {
         e.preventDefault();
         document.getElementById('import-file-input')?.click();
     });
-    
-    const handleCloseModal = () => {
-        dispatch({ type: 'SET_ACTIVE_MODAL', payload: null });
-    };
 
     const handleWelcomeClose = () => {
         sessionStorage.setItem('welcomeShown', 'true');
-        handleCloseModal();
+        setWelcomeModalOpen(false);
     };
 
     const containerClasses = [
@@ -91,7 +104,7 @@ const App: React.FC = () => {
                 <Footer />
 
                 <WelcomeModal
-                    isOpen={state.ui.activeModal === 'welcome'}
+                    isOpen={welcomeModalOpen}
                     onClose={handleWelcomeClose}
                 />
                 <Tooltip />
@@ -100,35 +113,23 @@ const App: React.FC = () => {
                 
                 <PresetModal
                     isOpen={state.ui.activeModal === 'preset'}
-                    onClose={handleCloseModal}
+                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
                 />
                 <ExamModal 
                     isOpen={state.ui.activeModal === 'exam'}
-                    onClose={handleCloseModal}
+                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
                 />
                 <LiveSettingsModal
                     isOpen={state.ui.activeModal === 'liveSettings'}
-                    onClose={handleCloseModal}
+                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
                 />
                 <AutoStartModal
                     isOpen={state.ui.activeModal === 'autoStart'}
-                    onClose={handleCloseModal}
+                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
                 />
                 <DisruptionModal
                     isOpen={state.ui.activeModal === 'emergency'}
-                    onClose={handleCloseModal}
-                />
-                <GeniusModal 
-                    isOpen={state.ui.activeModal === 'genius'}
-                    onClose={handleCloseModal}
-                />
-                 <NaplanWizardModal 
-                    isOpen={state.ui.activeModal === 'naplanWizard'}
-                    onClose={handleCloseModal}
-                />
-                 <StandardPresetModal 
-                    isOpen={state.ui.activeModal === 'standardPreset'}
-                    onClose={handleCloseModal}
+                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
                 />
             </div>
         </div>
