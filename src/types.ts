@@ -33,7 +33,6 @@ export interface Exam {
     writeEndTime?: number;
 }
 
-// New type for calculated values, used by hooks and components
 export interface CalculatedExam extends Exam {
     calculatedStatus: string;
     timeRemaining: number;
@@ -41,7 +40,6 @@ export interface CalculatedExam extends Exam {
     readerWriterTimeRemaining: number;
     cardClass: string;
 }
-
 
 export type GridLayout = 1 | 2| 3 | 4 | 5;
 
@@ -71,17 +69,17 @@ export interface Settings {
 
 export type Theme = 'light' | 'dark' | 'system';
 
-// This is the corrected ModalType with all possible values
+// This is the corrected ModalType, including all possible modal names.
 export type ModalType = 
     | 'preset' 
     | 'exam' 
     | 'confirm' 
     | 'autoStart' 
     | 'emergency' 
-    | 'liveSettings'
-    | 'welcome'
-    | 'standardPreset'
-    | 'naplanWizard'
+    | 'liveSettings' 
+    | 'welcome' 
+    | 'standardPreset' 
+    | 'naplanWizard' 
     | 'genius';
 
 export type ConfirmActionType = 'deleteExam' | 'clearAll' | 'resetAll' | 'endSession' | 'endAndReset' | 'abandon' | 'editLiveExam' | 'import';
@@ -98,7 +96,7 @@ export interface UiState {
         data?: any;
     };
     editingExamId: string | null;
-    disruptionTargetId: string | null; // For individual exam disruptions
+    disruptionTargetId: string | null;
 }
 
 export type SessionMode = 'examinations' | 'standardised';
@@ -138,7 +136,6 @@ export type Action =
     | { type: 'SET_ACTIVE_MODAL', payload: AppState['ui']['activeModal'] }
     | { type: 'SET_CONFIRM_ACTION', payload: AppState['ui']['confirmAction'] }
     | { type: 'SET_EDITING_EXAM_ID', payload: string | null }
-    // New Actions for full functionality
     | { type: 'UPDATE_FONT_SIZE', payload: { elementId: string, direction: 'up' | 'down' } }
     | { type: 'TOGGLE_FONT_LOCK' }
     | { type: 'TOGGLE_FABS' }
@@ -147,13 +144,12 @@ export type Action =
     | { type: 'CANCEL_AUTO_START' }
     | { type: 'PAUSE_SESSION', payload: { justification: string, examId?: string } }
     | { type: 'RESUME_SESSION', payload: { examId?: string } }
-    | { type: 'ABANDON_EXAM', payload: { justification: string, examId: string } }
+    | { type: 'ABANDON_EXAM'; payload: { examId: string, justification: string } }
     | { type: 'TOGGLE_REST_BREAK', payload: string }
     | { type: 'TOGGLE_READER_WRITER', payload: string }
     | { type: 'SET_DISRUPTION_TARGET', payload: string | null }
     | { type: 'FINISH_EXAM', payload: string };
 
-// --- Stricter types for presets ---
 export type ExamPresetItem = {
   name: string;
   readMins?: number;
