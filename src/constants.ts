@@ -7,12 +7,12 @@ export const DEFAULT_SETTINGS: Settings = {
     centreNumber: 'Examination Centre 222',
     showSchool: true,
     showCentre: true,
-    showCrest: true,
+    showCrest: false,
     crestUrl: schoolCrest,
-    showStatus: true,
+    showStatus: false,
     showTimes: true,
     showCountdown: false,
-    timeBreakdown: true,
+    timeBreakdown: false,
     singleLineTime: false,
     disableTimers: false,
     colorAlerts: false,
@@ -23,11 +23,11 @@ export const DEFAULT_SETTINGS: Settings = {
     showSeconds: true,
     is24hr: false,
     fontSizes: {
-        'header-session-title': 46,
-        'header-school-info': 38,
-        'header-centre-number': 38, 
+        'header-session-title': 40,
+        'header-school-info': 32,
+        'header-centre-number': 32, 
         'header-time': 150,
-        'header-date': 56,
+        'header-date': 48,
     }
 };
 
@@ -35,7 +35,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export const SESSION_PRESETS: Record<string, Partial<Settings>> = {
     'HSC Examinations': { showCentre: true, showCrest: false, gridLayout: 3, showTimes: true, showSchool: true },
-    'Trial HSC Examinations': { showSchool: true, showCentre: true, showCrest: true, gridLayout: 3, showTimes: true, showStatus: true },
+    'Trial HSC Examinations': { showSchool: false, showCentre: true, showCrest: false, gridLayout: 3, showTimes: true, showStatus: false },
     'Exit Examinations': { showSchool: true, showCrest: true, showStatus: true, gridLayout: 3, showTimes: true },
     'Half Yearly Examinations': { showSchool: true, showCrest: true, showStatus: true, gridLayout: 3, showTimes: true },
     'Preliminary Examinations': { showSchool: true, showCrest: true, showStatus: true, gridLayout: 3, showTimes: true },
@@ -58,9 +58,9 @@ export const EXAMINATION_PRESET_TITLES = [
 
 export const STANDARDISED_TEST_TITLES = [
     'NAPLAN',
-    'VALID',
     'Check-In Assessment',
-    'Minimum Standards'
+    'Minimum Standards',
+    'VALID'
 ];
 
 export const PRESET_ALIASES: Record<string, string> = {
@@ -69,7 +69,7 @@ export const PRESET_ALIASES: Record<string, string> = {
     'Preliminary Examinations': 'Exit Examinations',
 };
 
-// ... (The rest of your EXAM_PRESETS object remains unchanged)
+
 export const EXAM_PRESETS: Record<string, ExamPresetCategory> = {
     "Trial HSC Examinations": {
         "English": [

@@ -36,8 +36,37 @@ const ExamList: React.FC = () => {
         };
     }, [dispatch]);
 
+    const handlePresetClick = () => {
+        const title = settings.sessionTitle.toLowerCase();
+
+        if (sessionMode === 'standardised') {
+            if (title.includes('naplan')) {
+                dispatch({ type: 'SET_ACTIVE_MODAL', payload: 'naplanWizard' });
+                return;
+            }
+            if (title.includes('check-in') || title.includes('check in')) {
+                dispatch({ type: 'SET_ACTIVE_MODAL', payload: 'checkInWizard' });
+                return;
+            }
+        }
+        
+        dispatch({ type: 'SET_ACTIVE_MODAL', payload: 'preset' });
+    };
+
     const presetTitlesWithFiles = [...EXAMINATION_PRESET_TITLES, ...Object.keys(PRESET_ALIASES), 'NAPLAN'];
-    const isPresetDisabled = !presetTitlesWithFiles.includes(settings.sessionTitle);
+    const lowerCaseTitle = settings.sessionTitle.toLowerCase();
+    const isPresetDisabled = !presetTitlesWithFiles.includes(settings.sessionTitle) && !lowerCaseTitle.includes('check-in');
+
+    let presetButtonText = 'Add from Presets';
+    if (sessionMode === 'standardised' && (lowerCaseTitle.includes('naplan') || lowerCaseTitle.includes('check-in') || lowerCaseTitle.includes('check in'))) {
+        presetButtonText = 'Exam Setup Wizard';
+    }
+
+    // 1. Define the dynamic primary button colour based on the session mode
+    const primaryButtonClass = sessionMode === 'examinations' 
+        ? "bg-indigo-600 hover:bg-indigo-700" 
+        : "bg-teal-600 hover:bg-teal-700";
+
 
     return (
         <>
@@ -50,14 +79,15 @@ const ExamList: React.FC = () => {
                             onMouseOver={handleMouseOver("Select common exams from a predefined list.")}
                             onMouseOut={hideTooltip}
                             className="px-4 py-2 bg-slate-600 text-white font-semibold rounded-md hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                            onClick={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: 'preset' })}
+                            onClick={handlePresetClick}
                         >
-                            Add from Presets
+                            {presetButtonText}
                         </button>
                         <button 
                             onMouseOver={handleMouseOver("Click to open a form and add a new custom exam to the list.")}
                             onMouseOut={hideTooltip}
-                            className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition"
+                            // 2. Apply the dynamic class here
+                            className={`px-4 py-2 text-white font-semibold rounded-md transition ${primaryButtonClass}`}
                             onClick={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: 'exam' })}
                         >
                             Add Manually

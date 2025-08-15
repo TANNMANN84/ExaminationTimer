@@ -14,6 +14,9 @@ import LiveSettingsModal from './components/modals/LiveSettingsModal';
 import AutoStartModal from './components/modals/AutoStartModal';
 import DisruptionModal from './components/modals/DisruptionModal';
 import { exportSession } from './utils/export';
+// 1. IMPORT our new wizard modals
+import NaplanWizardModal from './components/modals/NaplanWizardModal';
+import CheckinWizardModal from './components/modals/CheckinWizardModal';
 
 const App: React.FC = () => {
     const { state, dispatch } = useAppContext();
@@ -55,7 +58,6 @@ const App: React.FC = () => {
         manageFullscreen();
     }, [state.isLive]);
 
-    // --- FIX: ADDED REFRESH WARNING FOR LIVE SESSIONS ---
     useEffect(() => {
         const handleBeforeUnload = (event: BeforeUnloadEvent) => {
             event.preventDefault();
@@ -129,6 +131,16 @@ const App: React.FC = () => {
                 />
                 <DisruptionModal
                     isOpen={state.ui.activeModal === 'emergency'}
+                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
+                />
+
+                {/* 2. RENDER the new wizard modals */}
+                <NaplanWizardModal
+                    isOpen={state.ui.activeModal === 'naplanWizard'}
+                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
+                />
+                <CheckinWizardModal
+                    isOpen={state.ui.activeModal === 'checkInWizard'}
                     onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
                 />
             </div>

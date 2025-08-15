@@ -86,7 +86,7 @@ export interface UiState {
     disruptionTargetId: string | null; // For individual exam disruptions
 }
 
-export type ModalType = 'preset' | 'exam' | 'confirm' | 'autoStart' | 'emergency' | 'liveSettings';
+export type ModalType = 'preset' | 'exam' | 'confirm' | 'autoStart' | 'emergency' | 'liveSettings' | 'standardPreset' | 'naplanWizard' | 'disruption'| 'checkInWizard';
 export type ConfirmActionType = 'deleteExam' | 'clearAll' | 'resetAll' | 'endSession' | 'endAndReset' | 'abandon' | 'editLiveExam' | 'import';
 
 export type SessionMode = 'examinations' | 'standardised';
