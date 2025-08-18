@@ -34,7 +34,7 @@ const NaplanWizardModal: React.FC<NaplanWizardModalProps> = ({ isOpen, onClose }
     const handleAddNaplanGroup = (testType: string) => {
         if (!naplanYear) return;
 
-        const groups = ['(A-E)', '(F-J)', '(K-O)', '(U-Z)'];
+        const groups = ['(A-E)', '(F-L)', '(M-S)', '(T-Z)'];
         const defaultSp: SPSettings = {
             studentName: '', showStudentName: false, extraTime: 0,
             restBreaks: 0, restTaken: 0, onRest: false, restStartTime: null,
