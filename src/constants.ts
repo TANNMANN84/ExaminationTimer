@@ -24,10 +24,10 @@ export const DEFAULT_SETTINGS: Settings = {
     is24hr: false,
     fontSizes: {
         'header-session-title': 40,
-        'header-school-info': 32,
+        'header-school-info': 28,
         'header-centre-number': 32, 
-        'header-time': 150,
-        'header-date': 48,
+        'header-time': 140,
+        'header-date': 40,
     }
 };
 
