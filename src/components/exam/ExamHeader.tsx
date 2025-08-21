@@ -8,8 +8,7 @@ const ExamHeader: React.FC = () => {
     const { settings } = state;
     const { timeValue, timePeriod, dayString, dateString } = useTimer();
 
-    // 1. REVERT to the original balanced grid layout.
-    // The two `1fr` columns will take up equal space, keeping the clock centered.
+    
     const gridLayoutClass = settings.showCrest
         ? 'grid-cols-[auto,1fr,auto,1fr]'
         : 'grid-cols-[1fr,auto,1fr]';
