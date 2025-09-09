@@ -31,7 +31,7 @@ export const DEFAULT_SETTINGS: Settings = {
     }
 };
 
-// --- NO CHANGES BELOW THIS LINE ---
+
 
 export const SESSION_PRESETS: Record<string, Partial<Settings>> = {
     'HSC Examinations': { showCentre: true, showCrest: false, gridLayout: 3, showTimes: true, showSchool: true },
@@ -107,5 +107,45 @@ export const EXAM_PRESETS: Record<string, ExamPresetCategory> = {
         ],
         "Other": [ { "name": "12 Distance Education", "readMins": 10, "writeHrs": 3, "writeMins": 0 } ]
     },
-    
+    "Exit Examinations": {
+        "English": [
+            { "name": "English Advanced", "readMins": 5, "writeHrs": 2, "writeMins": 0 },
+            { "name": "English Standard", "readMins": 5, "writeHrs": 2, "writeMins": 0 },
+            { "name": "English Extension 1", "readMins": 5, "writeHrs": 1, "writeMins": 30 }
+        ],
+        "Mathematics": [
+            { "name": "Mathematics Advanced", "readMins": 5, "writeHrs": 2, "writeMins": 0 },
+            { "name": "Mathematics Standard", "readMins": 5, "writeHrs": 2, "writeMins": 0 },
+            { "name": "Mathematics Extension", "readMins": 5, "writeHrs": 1, "writeMins": 30 }
+        ],
+        "Science": [
+            { "name": "Biology", "readMins": 5, "writeHrs": 2, "writeMins": 0 },
+            { "name": "Chemistry", "readMins": 5, "writeHrs": 2, "writeMins": 0 },
+            { "name": "Physics", "readMins": 5, "writeHrs": 2, "writeMins": 0 },
+            { "name": "Agriculture", "readMins": 5, "writeHrs": 2, "writeMins": 0 }
+        ],
+        "HSIE": [
+            { "name": "Ancient History", "readMins": 5, "writeHrs": 1, "writeMins": 30 },
+            { "name": "Modern History", "readMins": 5, "writeHrs": 1, "writeMins": 30 },
+            { "name": "Business Studies", "readMins": 5, "writeHrs": 2, "writeMins": 0 },
+            { "name": "Legal Studies", "readMins": 5, "writeHrs": 2, "writeMins": 0 },
+            { "name": "Business Studies", "readMins": 5, "writeHrs": 2, "writeMins": 0 }
+        ],
+        "TAS": [
+            { "name": "Food Technology", "readMins": 5, "writeHrs": 2, "writeMins": 0 },
+            { "name": "Textiles and Design", "readMins": 5, "writeHrs": 1, "writeMins": 30 },
+            { "name": "Industrial Technology - Automotive", "readMins": 5, "writeHrs": 1, "writeMins": 30 },
+            { "name": "Design & Technology", "readMins": 5, "writeHrs": 1, "writeMins": 30 }
+        ],
+        "PDHPE": [
+            { "name": "Health and Movement Science", "readMins": 5, "writeHrs": 2, "writeMins": 0 },
+            { "name": "Sport, Lifestyle and Recreation", "readMins": 5, "writeHrs": 1, "writeMins": 30 },
+            { "name": "Community & Family Studies", "readMins": 5, "writeHrs": 2, "writeMins": 0 },
+            { "name": "Exploring Early Childhood", "readMins": 5, "writeHrs": 1, "writeMins": 0 }
+        ],
+        "CAPA": [
+            { "name": "Visual Arts", "readMins": 5, "writeHrs": 1, "writeMins": 30 },
+            { "name": "Dance", "readMins": 5, "writeHrs": 1, "writeMins": 0 }
+        ]
+    }
 };
