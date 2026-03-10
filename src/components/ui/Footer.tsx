@@ -73,7 +73,7 @@ const Footer: React.FC = () => {
             </div>
             <div className="text-[11px] text-slate-500 dark:text-slate-400 text-right">
                 Examination Timer App - v7.6.2 <br />
-                Author: Andrew Tann 2025
+                Author: Andrew Tann 2026
             </div>
         </footer>
     );
