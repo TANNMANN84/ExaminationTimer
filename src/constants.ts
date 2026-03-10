@@ -147,5 +147,121 @@ export const EXAM_PRESETS: Record<string, ExamPresetCategory> = {
             { "name": "Visual Arts", "readMins": 5, "writeHrs": 1, "writeMins": 30 },
             { "name": "Dance", "readMins": 5, "writeHrs": 1, "writeMins": 0 }
         ]
+    },
+    "Half Yearly Examinations": {
+        "English": {
+            "Year 11": [
+                { "name": "11 English Standard", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 English Advanced", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+               
+            ],
+            "Year 12": [
+                { "name": "12 English Standard", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 English Advanced", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 English Extension 1", "readMins": 10, "writeHrs": 2, "writeMins": 0 }
+            ]
+        },
+        "Mathematics": {
+            "Year 11": [
+                { "name": "11 Mathematics Standard 1", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Mathematics Standard 2", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Mathematics Advanced", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Mathematics Extension", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+               
+            ],
+            "Year 12": [
+                { "name": "12 Mathematics Standard 1", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Mathematics Standard 2", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Mathematics Advanced", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Mathematics Extension 1", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Mathematics Extension 2", "readMins": 10, "writeHrs": 2, "writeMins": 0 }
+            ]
+        },
+        "Science": {
+            "Year 11": [
+                { "name": "11 Chemistry", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Physics", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Biology", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Earth and Environmental Science", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Investigating Science", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Agriculture", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+               
+            ],
+            "Year 12": [
+                { "name": "12 Chemistry", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Physics", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Biology", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Earth and Environmental Science", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Investigating Science", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Agriculture", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Science Extension", "readMins": 10, "writeHrs": 2, "writeMins": 0 }
+            ]
+        },
+        "HSIE": {
+            "Year 11": [
+                { "name": "11 Modern History", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Ancient History", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 History Extension", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Legal Studies", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Community & Family Studies", "readMins": 5, "writeHrs": 1, "writeMins": 0 }
+            ],
+            "Year 12": [
+                { "name": "12 Modern History", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Ancient History", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 History Extension", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Legal Studies", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Community & Family Studies", "readMins": 10, "writeHrs": 2, "writeMins": 0 }
+            ]
+        },
+        "TAS": {
+            "Year 11": [
+                { "name": "11 Work Studies", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Food Technology", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Design & Technology", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Textiles and Design", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Industrial Technology - Metal", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Industrial Technology - Automotive", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Construction", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Retail Services Examination", "readMins": 5, "writeHrs": 1, "writeMins": 0 }
+            ],
+            "Year 12": [
+                { "name": "12 Work Studies", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Food Technology", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Design & Technology", "readMins": 5, "writeHrs": 1, "writeMins": 30 },
+                { "name": "12 Textiles and Design", "readMins": 5, "writeHrs": 1, "writeMins": 30 },
+                { "name": "12 Industrial Technology - Metal", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Industrial Technology - Automotive", "readMins": 5, "writeHrs": 1, "writeMins": 30 },
+                { "name": "12 Construction", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Retail Services Examination", "readMins": 10, "writeHrs": 2, "writeMins": 0 }
+            ]
+        },
+        "CAPA": {
+            "Year 11": [
+                { "name": "11 Visual Arts", "readMins": 5, "writeHrs": 0, "writeMins": 45 }
+            ],
+            "Year 12": [
+                { "name": "12 Visual Arts", "readMins": 10, "writeHrs": 2, "writeMins": 0 }
+            ]
+        },
+        "PDHPE": {
+            "Year 11": [
+                { "name": "11 Health and Movement Science", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Sport, Lifestyle and Recreation", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Exploring Early Childhood", "readMins": 5, "writeHrs": 1, "writeMins": 0 }
+            ],
+            "Year 12": [
+                { "name": "12 Health and Movement Science", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Sport, Lifestyle and Recreation", "readMins": 10, "writeHrs": 2, "writeMins": 0 },
+                { "name": "12 Exploring Early Childhood", "readMins": 10, "writeHrs": 2, "writeMins": 0 }
+            ]
+        },
+        "Other": {
+            "Year 11": [
+                { "name": "11 Distance Education", "readMins": 5, "writeHrs": 1, "writeMins": 0 }
+            ],
+            "Year 12": [
+                { "name": "12 Distance Education", "readMins": 10, "writeHrs": 2, "writeMins": 0 }
+            ]
+        }
     }
 };

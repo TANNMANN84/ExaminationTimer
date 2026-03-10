@@ -27,7 +27,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose }) => {
 
                 <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-left text-sm text-slate-600 dark:text-slate-300">
                     <div className="bg-white dark:bg-slate-700/50 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1">✓ Customizable</h3>
+                        <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1">✓ Customisable</h3>
                         <p>Tailor display options for any exam type, from HSC to NAPLAN.</p>
                     </div>
                     <div className="bg-white dark:bg-slate-700/50 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
