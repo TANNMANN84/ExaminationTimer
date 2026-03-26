@@ -16,7 +16,12 @@ const recalculateAllExamEndTimes = (draft: AppState) => {
         const readMillis = exam.readMins * 60000;
         const writeMillis = ((exam.writeHrs * 60) + exam.writeMins + (exam.sp.extraTime || 0)) * 60000;
         const individualPauseDuration = exam.pauseDurationTotal + (exam.isPaused ? (now - (exam.pauseStartTime || now)) : 0);
-        const restDuration = exam.sp.restTaken + (exam.sp.onRest ? (now - (exam.sp.restStartTime || now)) : 0);
+        
+        // Use rounded rest duration to prevent the exam end time from jumping around
+        const rawCurrentRest = exam.sp.onRest ? (now - (exam.sp.restStartTime || now)) : 0;
+        const currentRestRounded = Math.round(rawCurrentRest / 60000) * 60000;
+        const restDuration = exam.sp.restTaken + currentRestRounded;
+        
         const readerWriterDuration = exam.sp.readerWriterTaken + (exam.sp.onReaderWriter ? (now - (exam.sp.readerWriterStartTime || now)) : 0);
         const totalOffset = globalPauseDuration + individualPauseDuration + restDuration + readerWriterDuration;
         exam.readEndTime = exam.startTime + readMillis + totalOffset;
@@ -307,11 +312,29 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 const exam = draft.exams.find((e: Exam) => e.id === action.payload);
                 if (exam) {
                     const now = Date.now();
+                    const MIN_BREAK_MILLIS = 5 * 60 * 1000;
+
                     if (exam.sp.onRest) {
-                        exam.sp.restTaken += now - (exam.sp.restStartTime || now);
-                        exam.sp.onRest = false; exam.sp.restStartTime = null;
-                        addLogEntry(draft, `Rest break ended for "${exam.name}".`);
+                        const timeSpentMillis = now - (exam.sp.restStartTime || now);
+                        
+                        if (timeSpentMillis < MIN_BREAK_MILLIS) {
+                            return; 
+                        }
+
+                        const timeSpentMins = Math.round(timeSpentMillis / 60000);
+                        const roundedTimeSpentMillis = timeSpentMins * 60000;
+
+                        exam.sp.restTaken += roundedTimeSpentMillis;
+                        exam.sp.onRest = false; 
+                        exam.sp.restStartTime = null;
+                        addLogEntry(draft, `Rest break ended for "${exam.name}". Duration logged: ${timeSpentMins} min(s).`);
                     } else {
+                        const remainingMillis = (exam.sp.restBreaks * 60000) - exam.sp.restTaken;
+                        
+                        if (remainingMillis < MIN_BREAK_MILLIS) {
+                            return;
+                        }
+
                         exam.sp.onRest = true;
                         exam.sp.restStartTime = now;
                         addLogEntry(draft, `Rest break started for "${exam.name}".`);
@@ -350,7 +373,6 @@ const appReducer = (state: AppState, action: Action): AppState => {
     });
 };
 
-// --- Reducer Initializer (FIXED) ---
 const init = (initialState: AppState): AppState => {
     try {
         const savedState = localStorage.getItem('examTimerState');
@@ -365,7 +387,6 @@ const init = (initialState: AppState): AppState => {
                 showFontControls: loaded.ui?.showFontControls || false,
             };
 
-            // Restore the session if it was live
             const isLive = loaded.isLive || false;
             const currentPage = isLive ? 'exam' : 'setup';
 
@@ -383,7 +404,6 @@ const init = (initialState: AppState): AppState => {
     return initialState;
 };
 
-// --- Provider Component (FIXED) ---
 export const AppProvider = ({ children }: { children: ReactNode }) => {
     const [state, dispatch] = useReducer(appReducer, initialState, init);
 
@@ -409,13 +429,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         state.ui.theme, state.ui.showFontControls
     ]);
 
-    // This is the new block to handle the autostart functionality
     useEffect(() => {
-        // The type for 'interval' is changed from NodeJS.Timeout to number
         let interval: number | undefined;
 
         if (state.autoStartTargetTime && !state.isLive) {
-            // setInterval in the browser returns a number, not a Timeout object
             interval = window.setInterval(async () => {
                 if (Date.now() >= state.autoStartTargetTime!) {
                     
