@@ -3,24 +3,22 @@ import { useAppContext } from '../context/AppContext';
 import { useTimer } from './useTimer';
 import type { CalculatedExam, Exam } from '../types';
 
+const MIN_BREAK_MILLIS = 5 * 60 * 1000;
+
 export const useExamCalculations = (): { examsToRender: CalculatedExam[] } => {
     const { state } = useAppContext();
     const { exams, settings, isLive, isPaused: isSessionPaused, autoStartTargetTime, sessionMode } = state;
     const { now } = useTimer();
 
     const examsToRender = useMemo(() => {
-        // This is the one, correct definition for isStandardised, based on the session mode.
         const isStandardised = sessionMode === 'standardised';
 
         return exams.map((exam: Exam): CalculatedExam => {
             const calculatedExam: Partial<CalculatedExam> = { ...exam };
 
-            // --- Determine Start/End Times ---
             if (isLive) {
-                // In a live session, times are already fixed in the state, so we do nothing here.
+                // Live session times are fixed in state
             } else if (autoStartTargetTime) {
-                // **** THIS BLOCK IS NEW ****
-                // In preview mode WITH autostart, calculate times based on the autostart target.
                 const sessionStartTime = autoStartTargetTime;
                 const readMillis = exam.readMins * 60000;
                 const writeMillis = ((exam.writeHrs * 60) + exam.writeMins + (exam.sp.extraTime || 0)) * 60000;
@@ -28,26 +26,20 @@ export const useExamCalculations = (): { examsToRender: CalculatedExam[] } => {
                 calculatedExam.startTime = sessionStartTime;
                 calculatedExam.readEndTime = sessionStartTime + readMillis;
                 calculatedExam.writeEndTime = calculatedExam.readEndTime + writeMillis;
-            } else {
-                // In preview mode WITHOUT autostart, we don't calculate start/end times.
-                // The component will show placeholders instead.
             }
             
             const { readEndTime = 0, writeEndTime = 0 } = calculatedExam;
 
-            // --- Determine Status, Time Remaining, and Card Class ---
             let currentStatus = 'Preview';
             let timeRemaining = (exam.readMins + exam.writeHrs * 60 + exam.writeMins + exam.sp.extraTime) * 60000;
             
-            // Set the base background color based on the test type
             let cardClass = isStandardised
-                ? 'bg-amber-50 dark:bg-amber-900/30' // Yellow tint for standardised tests
-                : 'bg-white dark:bg-slate-800';   // Default white for regular exams
+                ? 'bg-amber-50 dark:bg-amber-900/30' 
+                : 'bg-white dark:bg-slate-800';
 
             const isGloballyPaused = isSessionPaused && !exam.isPaused;
 
-            // The detailed status-based coloring should only apply to regular (non-standardised) examinations
-            if (isLive && !isStandardised) { // This block determines the status and appearance for live, non-standardised exams.
+            if (isLive && !isStandardised) { 
                 if (exam.status === 'abandoned') {
                     currentStatus = 'Abandoned';
                     cardClass = 'bg-slate-200 dark:bg-slate-700 opacity-60 is-abandoned';
@@ -56,7 +48,6 @@ export const useExamCalculations = (): { examsToRender: CalculatedExam[] } => {
                     timeRemaining = 0;
                     cardClass = 'bg-slate-200 dark:bg-slate-700 opacity-70';
                 } else {
-                    // First, determine the base phase (reading vs. writing) and set time/colors accordingly.
                     if (now.getTime() < readEndTime) {
                         currentStatus = 'Reading Time';
                         timeRemaining = readEndTime - now.getTime();
@@ -69,8 +60,6 @@ export const useExamCalculations = (): { examsToRender: CalculatedExam[] } => {
                         }
                     }
 
-                    // Then, override the status string if an overlay state (like pause) is active.
-                    // The time remaining and color from the base phase are preserved.
                     if (exam.isPaused || isGloballyPaused) {
                         currentStatus = 'Paused';
                     } else if (exam.sp.onRest) {
@@ -81,10 +70,15 @@ export const useExamCalculations = (): { examsToRender: CalculatedExam[] } => {
                 }
             }
             
-            // Calculate SP Break Time
+            // Calculate SP Break Time (Rounded to nearest minute for UI display)
             const totalBreakMillis = exam.sp.restBreaks * 60000;
-            const currentBreakDuration = exam.sp.onRest ? (now.getTime() - (exam.sp.restStartTime || now.getTime())) : 0;
-            calculatedExam.spTimeRemaining = totalBreakMillis - exam.sp.restTaken - currentBreakDuration;
+            const rawCurrentBreakDuration = exam.sp.onRest ? (now.getTime() - (exam.sp.restStartTime || now.getTime())) : 0;
+            const currentBreakDurationRounded = Math.round(rawCurrentBreakDuration / 60000) * 60000;
+            
+            calculatedExam.spTimeRemaining = totalBreakMillis - exam.sp.restTaken - currentBreakDurationRounded;
+
+            calculatedExam.canStartRestBreak = !exam.sp.onRest && (calculatedExam.spTimeRemaining >= MIN_BREAK_MILLIS);
+            calculatedExam.canEndRestBreak = exam.sp.onRest && (rawCurrentBreakDuration >= MIN_BREAK_MILLIS);
 
             // Calculate Reader/Writer Time
             const totalRwMillis = exam.sp.readerWriterTime * 60000;
