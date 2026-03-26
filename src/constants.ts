@@ -163,8 +163,7 @@ export const EXAM_PRESETS: Record<string, ExamPresetCategory> = {
         },
         "Mathematics": {
             "Year 11": [
-                { "name": "11 Mathematics Standard 1", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
-                { "name": "11 Mathematics Standard 2", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
+                { "name": "11 Mathematics Standard", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
                 { "name": "11 Mathematics Advanced", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
                 { "name": "11 Mathematics Extension", "readMins": 5, "writeHrs": 1, "writeMins": 0 },
                
