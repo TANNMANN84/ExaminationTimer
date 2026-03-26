@@ -40,6 +40,8 @@ export interface CalculatedExam extends Exam {
     spTimeRemaining: number;
     readerWriterTimeRemaining: number;
     cardClass: string;
+    canStartRestBreak: boolean; // Added for NESA 5-min rules
+    canEndRestBreak: boolean;   // Added for NESA 5-min rules
 }
 
 
@@ -126,7 +128,6 @@ export type Action =
     | { type: 'SET_ACTIVE_MODAL', payload: AppState['ui']['activeModal'] }
     | { type: 'SET_CONFIRM_ACTION', payload: AppState['ui']['confirmAction'] }
     | { type: 'SET_EDITING_EXAM_ID', payload: string | null }
-    // New Actions for full functionality
     | { type: 'UPDATE_FONT_SIZE', payload: { elementId: string, direction: 'up' | 'down' } }
     | { type: 'TOGGLE_FONT_LOCK' }
     | { type: 'TOGGLE_FABS' }
@@ -141,7 +142,6 @@ export type Action =
     | { type: 'SET_DISRUPTION_TARGET', payload: string | null }
     | { type: 'FINISH_EXAM', payload: string };
 
-// --- Stricter types for presets ---
 export type ExamPresetItem = {
   name: string;
   readMins?: number;
@@ -152,4 +152,3 @@ export type ExamPresetItem = {
 export type ExamPresetCategory = {
   [key: string]: ExamPresetItem[] | ExamPresetCategory;
 };
-
