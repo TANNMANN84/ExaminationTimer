@@ -15,7 +15,18 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
     const { settings, isLive, autoStartTargetTime, isPaused: isSessionPaused, sessionMode } = state;
     const { showTooltip, hideTooltip } = useTooltip();
 
-    const { calculatedStatus, timeRemaining, cardClass, spTimeRemaining, readerWriterTimeRemaining, startTime = 0, readEndTime = 0, writeEndTime = 0 } = exam;
+    const { 
+        calculatedStatus, 
+        timeRemaining, 
+        cardClass, 
+        spTimeRemaining, 
+        readerWriterTimeRemaining, 
+        startTime = 0, 
+        readEndTime = 0, 
+        writeEndTime = 0,
+        canStartRestBreak,
+        canEndRestBreak
+    } = exam;
 
     const { showSpCountdown } = settings;
     const isStandardised = sessionMode === 'standardised';
@@ -145,11 +156,11 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
                         )}
                         <button
                             onClick={() => dispatch({ type: 'TOGGLE_REST_BREAK', payload: exam.id })}
-                            disabled={isRestBreakTimeUp || exam.sp.onReaderWriter}
+                            disabled={!canStartRestBreak || exam.sp.onReaderWriter}
                             style={restStyle}
                             className="mt-1 px-4 py-1 text-white text-sm font-bold rounded-full transition bg-blue-600 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {exam.sp.onRest ? 'End Rest Break' : isRestBreakTimeUp ? 'No Breaks Left' : 'Start Rest Break'}
+                            {isRestBreakTimeUp ? 'No Breaks Left' : (!canStartRestBreak ? 'Allowance < 5 mins' : 'Start Rest Break')}
                         </button>
                     </div>
                 )}
@@ -238,7 +249,6 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
                      </button>
                 </div>
 
-                {/* --- FIX: EXAM TITLE (CENTERED) --- */}
                 <div className="flex items-center justify-center pr-8 mb-3">
                     {renderSPIcons()}
                     <div className="flex items-center space-x-2">
@@ -252,7 +262,6 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
                 
                 {isStandardised ? renderAccessCode() : (
                     <div className="space-y-2">
-                        {/* --- FIX: STATUS (LEFT-ALIGNED) --- */}
                         {settings.showStatus && (
                             <div className="flex justify-start">
                                 <p 
@@ -270,7 +279,6 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
                             </div>
                         )}
                         
-                        {/* --- FIX: EXAM TIMES (LEFT-ALIGNED) --- */}
                         {settings.showTimes && (
                             <div 
                                 className="tabular-nums cursor-help flex justify-start" 
@@ -311,7 +319,6 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
                             </div>
                         )}
 
-                        {/* --- FIX: COUNTDOWN (CENTERED) --- */}
                         {settings.showCountdown && (
                             <div className="flex items-center justify-center space-x-2 pt-2">
                                 <FontControl elementId={`exam-countdown-${exam.id}`} direction="down" />
@@ -328,7 +335,6 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
                     </div>
                 )}
 
-                {/* --- FIX: OPTIONAL INFO (LEFT-ALIGNED) --- */}
                 {exam.optionalInfo && (
                     <div className="flex items-start space-x-2 mt-4">
                         <FontControl elementId={`optional-info-${exam.id}`} direction="down" />
@@ -342,16 +348,17 @@ const ExamTimerCard: React.FC<ExamTimerCardProps> = ({ exam }) => {
 
             <div className="mt-auto">
                 {exam.sp.onRest ? (
-                    <div className="mt-4 p-4 bg-blue-600 text-white rounded-md text-center">
-                        <h4 className="text-xl font-bold">ON REST BREAK</h4>
-                        {showSpCountdown && (
-                            <p className="text-3xl font-bold tabular-nums my-2">{formatTime(spTimeRemaining)}</p>
-                        )}
+                    <div className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 border-2 border-blue-400 dark:border-blue-500 text-slate-700 dark:text-slate-300 rounded-md text-center">
+                        <h4 className="text-xl font-bold text-blue-600 dark:text-blue-400">EXAM PAUSED: REST BREAK</h4>
+                        <p className="text-2xl font-semibold my-2 tabular-nums">
+                            Time on break: {Math.floor((Date.now() - (exam.sp.restStartTime || Date.now())) / 60000)} min(s)
+                        </p>
                         <button
                             onClick={() => dispatch({ type: 'TOGGLE_REST_BREAK', payload: exam.id })}
-                            className="mt-2 px-6 py-2 bg-white text-blue-600 font-bold rounded-lg shadow-md hover:bg-blue-100 transition"
+                            disabled={!canEndRestBreak}
+                            className="mt-2 px-6 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            End Rest & Resume Exam
+                            {!canEndRestBreak ? 'Minimum 5 mins required' : 'End Rest & Resume Exam'}
                         </button>
                     </div>
                 ) : exam.sp.onReaderWriter ? (
