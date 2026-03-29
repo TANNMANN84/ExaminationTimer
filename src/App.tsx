@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useStore } from './context/useStore';
 import WelcomeModal from './components/modals/WelcomeModal';
 import SetupPage from './components/pages/SetupPage';
