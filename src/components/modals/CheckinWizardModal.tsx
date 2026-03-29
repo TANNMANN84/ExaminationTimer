@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../ui/Modal';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 import type { Exam, SPSettings } from '../../types';
 
 interface CheckinWizardModalProps {
@@ -9,7 +9,7 @@ interface CheckinWizardModalProps {
 }
 
 const CheckinWizardModal: React.FC<CheckinWizardModalProps> = ({ isOpen, onClose }) => {
-    const { dispatch } = useAppContext();
+    const dispatch = useStore(state => state.dispatch);
     
     const [checkinStep, setCheckinStep] = useState<'year' | 'test' | 'codes'>('year');
     const [checkinYear, setCheckinYear] = useState<7 | 8 | 9 | null>(null);

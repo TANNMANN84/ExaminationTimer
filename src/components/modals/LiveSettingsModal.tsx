@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../ui/Modal';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 import type { Settings, GridLayout } from '../../types';
 import Toggle from '../ui/Toggle';
 import Accordion from '../ui/Accordion';
@@ -13,16 +13,17 @@ interface LiveSettingsModalProps {
 }
 
 const LiveSettingsModal: React.FC<LiveSettingsModalProps> = ({ isOpen, onClose }) => {
-    const { state, dispatch } = useAppContext();
-    const [localSettings, setLocalSettings] = useState(state.settings);
-    const { sessionMode } = state;
+    const dispatch = useStore(state => state.dispatch);
+    const settings = useStore(state => state.settings);
+    const sessionMode = useStore(state => state.sessionMode);
+    const [localSettings, setLocalSettings] = useState(settings);
     const isStandardised = sessionMode === 'standardised';
 
     useEffect(() => {
         if (isOpen) {
-            setLocalSettings(state.settings);
+            setLocalSettings(settings);
         }
-    }, [isOpen, state.settings]);
+    }, [isOpen, settings]);
 
     const handleToggle = (key: keyof Settings) => (e: React.ChangeEvent<HTMLInputElement>) => {
         setLocalSettings(prev => ({ ...prev, [key]: e.target.checked }));
@@ -93,7 +94,7 @@ const LiveSettingsModal: React.FC<LiveSettingsModalProps> = ({ isOpen, onClose }
                         </Accordion>
                     )}
                     
-                    {state.settings.specialProvisions && !isStandardised && (
+                    {settings.specialProvisions && !isStandardised && (
                         <Accordion title="Special Provisions">
                             <SettingRow label="Show Special Provisions info" tooltip="Shows the SP controls and timers on each card.">
                                 <Toggle checked={localSettings.showSPLive} onChange={handleToggle('showSPLive')} />

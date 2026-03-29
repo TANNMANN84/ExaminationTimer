@@ -2,7 +2,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { AppProvider } from './context/AppContext';
 import { TooltipProvider } from './context/TooltipContext';
 import './index.css';
 
@@ -14,10 +13,8 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <AppProvider>
       <TooltipProvider>
         <App />
       </TooltipProvider>
-    </AppProvider>
   </React.StrictMode>
 );

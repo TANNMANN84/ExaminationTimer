@@ -1,13 +1,19 @@
 import { useMemo } from 'react';
-import { useAppContext } from '../context/AppContext';
+import { useStore } from '../context/useStore';
 import { useTimer } from './useTimer';
 import type { CalculatedExam, Exam } from '../types';
 
 const MIN_BREAK_MILLIS = 5 * 60 * 1000;
 
 export const useExamCalculations = (): { examsToRender: CalculatedExam[] } => {
-    const { state } = useAppContext();
-    const { exams, settings, isLive, isPaused: isSessionPaused, autoStartTargetTime, sessionMode } = state;
+    const exams = useStore(state => state.exams);
+    const settings = useStore(state => state.settings);
+    const isLive = useStore(state => state.isLive);
+    const isSessionPaused = useStore(state => state.isPaused);
+    const autoStartTargetTime = useStore(state => state.autoStartTargetTime);
+    const sessionMode = useStore(state => state.sessionMode);
+    const globalPauseStartTime = useStore(state => state.pauseStartTime);
+
     const { now } = useTimer();
 
     const examsToRender = useMemo(() => {
@@ -30,6 +36,18 @@ export const useExamCalculations = (): { examsToRender: CalculatedExam[] } => {
             
             const { readEndTime = 0, writeEndTime = 0 } = calculatedExam;
 
+            // Freeze the visual timer calculation if the exam is actively paused
+            let mainTimerNow = now.getTime();
+            if (exam.isPaused && exam.pauseStartTime) {
+                mainTimerNow = exam.pauseStartTime;
+            } else if (isSessionPaused && !exam.isPaused && globalPauseStartTime) {
+                mainTimerNow = globalPauseStartTime;
+            } else if (exam.sp.onRest && exam.sp.restStartTime) {
+                mainTimerNow = exam.sp.restStartTime;
+            } else if (exam.sp.onReaderWriter && exam.sp.readerWriterStartTime) {
+                mainTimerNow = exam.sp.readerWriterStartTime;
+            }
+
             let currentStatus = 'Preview';
             let timeRemaining = (exam.readMins + exam.writeHrs * 60 + exam.writeMins + exam.sp.extraTime) * 60000;
             
@@ -48,13 +66,13 @@ export const useExamCalculations = (): { examsToRender: CalculatedExam[] } => {
                     timeRemaining = 0;
                     cardClass = 'bg-slate-200 dark:bg-slate-700 opacity-70';
                 } else {
-                    if (now.getTime() < readEndTime) {
+                    if (mainTimerNow < readEndTime) {
                         currentStatus = 'Reading Time';
-                        timeRemaining = readEndTime - now.getTime();
+                        timeRemaining = readEndTime - mainTimerNow;
                         if (settings.colorAlerts) cardClass = 'bg-sky-100 dark:bg-sky-900/50';
                     } else {
                         currentStatus = 'Writing Time';
-                        timeRemaining = writeEndTime - now.getTime();
+                        timeRemaining = writeEndTime - mainTimerNow;
                         if (settings.colorAlerts) {
                             cardClass = timeRemaining <= 10 * 60 * 1000 ? 'bg-amber-100 dark:bg-amber-800/30' : 'bg-green-100 dark:bg-green-800/40';
                         }

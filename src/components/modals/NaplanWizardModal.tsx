@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../ui/Modal';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 import type { Exam, SPSettings } from '../../types';
 
 interface NaplanWizardModalProps {
@@ -9,7 +9,7 @@ interface NaplanWizardModalProps {
 }
 
 const NaplanWizardModal: React.FC<NaplanWizardModalProps> = ({ isOpen, onClose }) => {
-    const { dispatch } = useAppContext();
+    const dispatch = useStore(state => state.dispatch);
     
     const [naplanStep, setNaplanStep] = useState<'year' | 'test' | 'codes'>('year');
     const [naplanYear, setNaplanYear] = useState<7 | 9 | null>(null);

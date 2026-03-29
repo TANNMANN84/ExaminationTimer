@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useAppContext } from '../context/AppContext';
+import { useStore } from '../context/useStore';
 
 export const useTimer = () => {
-    const { state } = useAppContext();
-    const { is24hr, showSeconds } = state.settings;
+    const is24hr = useStore(state => state.settings.is24hr);
+    const showSeconds = useStore(state => state.settings.showSeconds);
     const [now, setNow] = useState(new Date());
 
     useEffect(() => {

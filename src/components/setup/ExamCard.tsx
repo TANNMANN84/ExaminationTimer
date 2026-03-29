@@ -1,14 +1,15 @@
 import React from 'react';
 import type { Exam } from '../../types';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 
 interface ExamCardProps {
     exam: Exam;
 }
 
 const ExamCard: React.FC<ExamCardProps> = ({ exam }) => {
-    const { state, dispatch } = useAppContext();
-    const { settings, sessionMode } = state;
+    const dispatch = useStore(state => state.dispatch);
+    const settings = useStore(state => state.settings);
+    const sessionMode = useStore(state => state.sessionMode);
     const isStandardised = sessionMode === 'standardised';
 
     const handleEdit = () => {

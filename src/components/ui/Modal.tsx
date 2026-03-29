@@ -55,12 +55,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, ariaLabel }) =
         return null;
     }
 
+    const modalRoot = document.getElementById('modal-root');
+    if (!modalRoot) {
+        console.error('Modal root element not found. Make sure <div id="modal-root"></div> exists in index.html');
+        return null; 
+    }
+
     return createPortal(
         <div
             role="dialog"
             aria-modal="true"
             aria-label={ariaLabel}
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[80]"
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[80] overflow-y-auto min-h-full"
             onClick={onClose}
         >
             <div
@@ -71,7 +77,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, ariaLabel }) =
                 {children}
             </div>
         </div>,
-        document.body
+        modalRoot
     );
 };
 

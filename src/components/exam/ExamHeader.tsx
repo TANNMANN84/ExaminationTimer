@@ -1,17 +1,19 @@
 import React from 'react';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 import { useTimer } from '../../hooks/useTimer';
 import FontControl from './FontControl';
 
 const ExamHeader: React.FC = () => {
-    const { state } = useAppContext();
-    const { settings } = state;
+    const settings = useStore(state => state.settings);
+    const sessionMode = useStore(state => state.sessionMode);
     const { timeValue, timePeriod, dayString, dateString } = useTimer();
 
+    const isStandardised = sessionMode === 'standardised';
     
+    // Let the header stack gracefully on smaller screens before enforcing the rigid grid on medium+ displays
     const gridLayoutClass = settings.showCrest
-        ? 'grid-cols-[auto,1fr,auto,1fr]'
-        : 'grid-cols-[1fr,auto,1fr]';
+        ? 'grid-cols-1 md:grid-cols-[auto,1fr,auto,1fr]'
+        : 'grid-cols-1 md:grid-cols-[1fr,auto,1fr]';
 
     const dateFontSize = settings.fontSizes['header-date'];
 
@@ -31,7 +33,7 @@ const ExamHeader: React.FC = () => {
                 <div className="flex flex-col items-center text-center py-2 min-w-0">
                     <div className="flex items-center space-x-2">
                         <FontControl elementId="header-session-title" direction="down" />
-                        <h1 id="header-session-title" className="font-bold whitespace-nowrap" style={{fontSize: settings.fontSizes['header-session-title']}}>
+                        <h1 id="header-session-title" className="font-bold break-words leading-tight text-balance" style={{fontSize: settings.fontSizes['header-session-title']}}>
                             {settings.sessionTitle}
                         </h1>
                         <FontControl elementId="header-session-title" direction="up" />
@@ -43,6 +45,15 @@ const ExamHeader: React.FC = () => {
                                 {settings.schoolName}
                             </p>
                             <FontControl elementId="header-school-info" direction="up" />
+                        </div>
+                    )}
+                    {!isStandardised && settings.showCentre && (
+                        <div className="flex items-center space-x-2 mt-1">
+                            <FontControl elementId="header-centre-number" direction="down" />
+                            <p id="header-centre-number" className="text-xl text-slate-700 dark:text-slate-300" style={{fontSize: settings.fontSizes['header-centre-number']}}>
+                                {settings.centreNumber}
+                            </p>
+                            <FontControl elementId="header-centre-number" direction="up" />
                         </div>
                     )}
                 </div>

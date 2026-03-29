@@ -1,18 +1,51 @@
-import React, { useEffect, useRef } from 'react';
-import { useAppContext } from '../../context/AppContext';
+import React, { useEffect } from 'react';
+import { useStore } from '../../context/useStore';
 import ExamHeader from '../exam/ExamHeader';
 import ExamTimerCard from '../exam/ExamTimerCard';
 import ExamActions from '../exam/ExamActions';
-import Sortable from 'sortablejs';
 import { useExamCalculations } from '../../hooks/useExamCalculations';
 import AutoStartBanner from '../exam/AutoStartBanner';
 import { useTimer } from '../../hooks/useTimer';
-import type { SortableEvent } from 'sortablejs';
+import type { CalculatedExam } from '../../types';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    type DragEndEvent
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    rectSortingStrategy,
+    useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+const SortableExamWrapper: React.FC<{ exam: CalculatedExam; disabled: boolean }> = ({ exam, disabled }) => {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: exam.id, disabled });
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 50 : 'auto',
+        opacity: isDragging ? 0.5 : 1,
+    };
+    return (
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="h-full">
+            <ExamTimerCard exam={exam} />
+        </div>
+    );
+};
 
 const ExamPage: React.FC = () => {
-    const { state, dispatch } = useAppContext();
-    const { settings, exams, isLive } = state;
-    const gridRef = useRef<HTMLDivElement>(null);
+    const dispatch = useStore(state => state.dispatch);
+    const settings = useStore(state => state.settings);
+    const exams = useStore(state => state.exams);
+    const isLive = useStore(state => state.isLive);
+    const isSessionPaused = useStore(state => state.isPaused);
+    
     const { examsToRender } = useExamCalculations();
     const { now } = useTimer();
 
@@ -24,32 +57,32 @@ const ExamPage: React.FC = () => {
         if (!isLive) return;
         
         exams.forEach(exam => {
-            if (exam.status === 'running' && exam.writeEndTime && now.getTime() >= exam.writeEndTime) {
+            const isEffectivelyPaused = exam.isPaused || isSessionPaused || exam.sp.onRest || exam.sp.onReaderWriter;
+
+            if (!isEffectivelyPaused && exam.status === 'running' && exam.writeEndTime && now.getTime() >= exam.writeEndTime) {
                 dispatch({ type: 'FINISH_EXAM', payload: exam.id });
             }
         });
 
-    }, [exams, isLive, now, dispatch]);
+    }, [exams, isLive, isSessionPaused, now, dispatch]);
 
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: { distance: 5 },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
-    useEffect(() => {
-        let sortable: Sortable | null = null;
-        if (gridRef.current) {
-            sortable = new Sortable(gridRef.current, {
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                disabled: isLive, // Disable sorting when the session is live
-                onEnd: (evt: SortableEvent) => {
-                    if (evt.oldIndex !== undefined && evt.newIndex !== undefined) {
-                        dispatch({ type: 'REORDER_EXAMS', payload: { oldIndex: evt.oldIndex, newIndex: evt.newIndex } });
-                    }
-                },
-            });
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            const oldIndex = exams.findIndex((e) => e.id === active.id);
+            const newIndex = exams.findIndex((e) => e.id === over.id);
+            dispatch({ type: 'REORDER_EXAMS', payload: { oldIndex, newIndex } });
         }
-        return () => {
-            sortable?.destroy();
-        };
-    }, [dispatch, isLive]);
+    };
 
     const gridLayoutClasses = {
         '1': 'grid-cols-1 max-w-4xl mx-auto',
@@ -62,17 +95,21 @@ const ExamPage: React.FC = () => {
     const gridClass = gridLayoutClasses[settings.gridLayout] || gridLayoutClasses[3];
 
     return (
-        <div className="min-h-screen p-4 md:p-6 animate-fadeIn pb-32">
+        <div className="h-full p-4 md:p-6 animate-fadeIn pb-32">
             <ExamHeader />
             
             <AutoStartBanner />
 
             <div className="flex justify-center">
-                <main ref={gridRef} className={`grid w-full gap-6 ${gridClass}`}>
+                <main className={`grid w-full gap-6 ${gridClass}`}>
                     {exams.length > 0 ? (
-                        examsToRender.map(exam => (
-                            <ExamTimerCard key={exam.id} exam={exam} />
-                        ))
+                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                            <SortableContext items={examsToRender.map(e => e.id)} strategy={rectSortingStrategy}>
+                                {examsToRender.map(exam => (
+                                    <SortableExamWrapper key={exam.id} exam={exam} disabled={isLive} />
+                                ))}
+                            </SortableContext>
+                        </DndContext>
                     ) : (
                         <div className="col-span-full text-center py-12 text-slate-500 dark:text-slate-400">
                             <p>No examinations have been set up.</p>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../ui/Modal';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 
 interface DisruptionModalProps {
     isOpen: boolean;
@@ -8,8 +8,10 @@ interface DisruptionModalProps {
 }
 
 const DisruptionModal: React.FC<DisruptionModalProps> = ({ isOpen, onClose }) => {
-    const { state, dispatch } = useAppContext();
-    const { exams, ui: { disruptionTargetId }, isPaused: isSessionPaused } = state;
+    const dispatch = useStore(state => state.dispatch);
+    const exams = useStore(state => state.exams);
+    const disruptionTargetId = useStore(state => state.ui.disruptionTargetId);
+    const isSessionPaused = useStore(state => state.isPaused);
 
     const [justification, setJustification] = useState('');
     const [error, setError] = useState('');

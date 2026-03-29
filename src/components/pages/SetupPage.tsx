@@ -3,12 +3,12 @@ import SessionTitle from '../setup/SessionTitle';
 import DisplayOptions from '../setup/DisplayOptions';
 import ExamList from '../setup/ExamList';
 import SetupActions from '../setup/SetupActions';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 
 // The SessionModeSelector remains the same as our last change
 const SessionModeSelector: React.FC = () => {
-    const { state, dispatch } = useAppContext();
-    const { sessionMode } = state;
+    const sessionMode = useStore(state => state.sessionMode);
+    const dispatch = useStore(state => state.dispatch);
     
     const examinationsColor = "bg-indigo-600";
     const standardisedColor = "bg-teal-600"; 
@@ -47,9 +47,7 @@ const SessionModeSelector: React.FC = () => {
 
 
 const SetupPage: React.FC = () => {
-    // 1. Get the sessionMode from the context
-    const { state } = useAppContext();
-    const { sessionMode } = state;
+    const sessionMode = useStore(state => state.sessionMode);
 
     // 2. Define the background class based on the mode
     const backgroundClass = sessionMode === 'standardised' 

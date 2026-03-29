@@ -1,7 +1,8 @@
 import React from 'react';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 import { useTooltip } from '../../context/TooltipContext';
 import type { Theme } from '../../types';
+import { version as appVersion } from '../../../package.json';
 
 const FooterButton: React.FC<{
     onClick: () => void;
@@ -9,10 +10,10 @@ const FooterButton: React.FC<{
     children: React.ReactNode;
 }> = ({ onClick, tooltipText, children }) => {
     const { showTooltip, hideTooltip } = useTooltip();
-    const { state } = useAppContext();
+    const showTooltips = useStore(state => state.ui.showTooltips);
 
     const handleMouseOver = (e: React.MouseEvent<HTMLButtonElement>) => {
-        if(state.ui.showTooltips) showTooltip(tooltipText, e.currentTarget);
+        if(showTooltips) showTooltip(tooltipText, e.currentTarget);
     }
 
     return (
@@ -28,8 +29,8 @@ const FooterButton: React.FC<{
 }
 
 const ThemeSwitcher: React.FC = () => {
-    const { state, dispatch } = useAppContext();
-    const { theme } = state.ui;
+    const dispatch = useStore(state => state.dispatch);
+    const theme = useStore(state => state.ui.theme);
 
     const cycleTheme = () => {
         const nextTheme: Theme = theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system';
@@ -57,8 +58,8 @@ const ThemeSwitcher: React.FC = () => {
 
 
 const Footer: React.FC = () => {
-    const { state, dispatch } = useAppContext();
-    const { ui } = state;
+    const dispatch = useStore(state => state.dispatch);
+    const showTooltips = useStore(state => state.ui.showTooltips);
 
     return (
         <footer className="fixed bottom-0 left-0 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-t border-slate-200 dark:border-slate-700/50 p-2 flex justify-between items-center z-40">
@@ -68,11 +69,19 @@ const Footer: React.FC = () => {
                     onClick={() => dispatch({ type: 'TOGGLE_TOOLTIPS' })}
                     tooltipText="Toggle help tooltips"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 ${ui.showTooltips ? 'text-indigo-500' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 ${showTooltips ? 'text-indigo-500' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </FooterButton>
             </div>
             <div className="text-[11px] text-slate-500 dark:text-slate-400 text-right">
-                Examination Timer App - v7.6.2 <br />
+                Examination Timer App -{' '}
+                <button 
+                    onClick={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: 'changelog' })}
+                    className="hover:text-indigo-600 dark:hover:text-indigo-400 underline decoration-slate-300 dark:decoration-slate-600 transition cursor-pointer"
+                    title="View Changelog & About"
+                >
+                    v{appVersion}
+                </button>
+                <br />
                 Author: Andrew Tann 2026
             </div>
         </footer>

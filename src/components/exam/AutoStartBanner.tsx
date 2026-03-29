@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 import { formatClockTime } from '../../utils/time';
+import { requestFullscreen } from '../../utils/display';
 
 const AutoStartBanner: React.FC = () => {
-    const { state, dispatch } = useAppContext();
-    const { autoStartTargetTime, settings } = state;
+    const dispatch = useStore(state => state.dispatch);
+    const autoStartTargetTime = useStore(state => state.autoStartTargetTime);
+    const settings = useStore(state => state.settings);
+    const isLive = useStore(state => state.isLive);
     const [now, setNow] = useState(Date.now());
 
     useEffect(() => {
@@ -14,6 +17,7 @@ const AutoStartBanner: React.FC = () => {
             const currentTime = Date.now();
             setNow(currentTime);
             if (currentTime >= autoStartTargetTime) {
+                requestFullscreen();
                 dispatch({ type: 'START_LIVE_SESSION' });
                 clearInterval(timer);
             }
@@ -23,7 +27,7 @@ const AutoStartBanner: React.FC = () => {
     }, [autoStartTargetTime, dispatch]);
 
 
-    if (!autoStartTargetTime || state.isLive) {
+    if (!autoStartTargetTime || isLive) {
         return null;
     }
 

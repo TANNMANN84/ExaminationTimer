@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../ui/Modal';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 import type { Exam } from '../../types';
 import Toggle from '../ui/Toggle';
 
@@ -10,8 +10,12 @@ interface ExamModalProps {
 }
 
 const ExamModal: React.FC<ExamModalProps> = ({ isOpen, onClose }) => {
-    const { state, dispatch } = useAppContext();
-    const { exams, ui: { editingExamId }, settings, sessionMode } = state;
+    const dispatch = useStore(state => state.dispatch);
+    const exams = useStore(state => state.exams);
+    const editingExamId = useStore(state => state.ui.editingExamId);
+    const settings = useStore(state => state.settings);
+    const sessionMode = useStore(state => state.sessionMode);
+
     const isEditing = !!editingExamId;
     const isStandardised = sessionMode === 'standardised';
     const isNaplan = settings.sessionTitle === 'NAPLAN';

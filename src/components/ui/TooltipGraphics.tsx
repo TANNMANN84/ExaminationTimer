@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatClockTime } from '../../utils/time';
-import { useAppContext } from '../../context/AppContext'; // Use the correct path you found
+import { useStore } from '../../context/useStore';
 
 // This line is now incorrect and must be removed.
 // import { SCHOOL_CREST_URL } from '../../constants';
@@ -58,8 +58,7 @@ export const TimeBreakdownGraphic: React.FC = () => (
 
 // THIS COMPONENT IS NOW FIXED
 export const CrestGraphic: React.FC = () => {
-    const { state } = useAppContext(); 
-    const { crestUrl } = state.settings;
+    const crestUrl = useStore(state => state.settings.crestUrl);
 
     return (
         <Graphic title="Shows the school crest image in the header.">

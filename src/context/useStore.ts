@@ -1,9 +1,8 @@
-import { createContext, useContext, useReducer, type Dispatch, type ReactNode, useEffect } from 'react';
+import { create } from 'zustand';
+import { produce } from 'immer';
 import type { AppState, Exam, Action, SPSettings } from '../types';
 import { DEFAULT_SETTINGS, SESSION_PRESETS, EXAMINATION_PRESET_TITLES, STANDARDISED_TEST_TITLES } from '../constants';
-import { produce } from 'immer';
 import { exportSessionLog } from '../utils/export';
-import { requestFullscreen, activateWakelock } from '../utils/display';
 
 // --- Helper Functions ---
 const recalculateAllExamEndTimes = (draft: AppState) => {
@@ -35,6 +34,45 @@ const addLogEntry = (draft: AppState, eventDescription: string) => {
     draft.sessionLog.push(`[${timestamp}] ${eventDescription}`);
 };
 
+const sanitizeLoadedExams = (exams: any[], preserveLiveState: boolean = false): Exam[] => {
+    if (!Array.isArray(exams)) return [];
+    const defaultExamShape: Omit<Exam, 'sp'> = {
+        id: '', name: 'Untitled Exam', readMins: 0, writeHrs: 0, writeMins: 0, optionalInfo: '',
+        hasAccessCode: false, accessCode: '', status: 'running', isPaused: false, pauseStartTime: null,
+        pauseDurationTotal: 0, startTime: undefined, readEndTime: undefined, writeEndTime: undefined,
+    };
+    const defaultSp: SPSettings = {
+        studentName: '', showStudentName: false, extraTime: 0, restBreaks: 0, restTaken: 0,
+        onRest: false, restStartTime: null, readerWriterTime: 0, readerWriterTaken: 0,
+        onReaderWriter: false, readerWriterStartTime: null,
+    };
+    return exams.map((exam: any, index: number) => {
+        if (typeof exam !== 'object' || exam === null) exam = {};
+        const sanitizedExamBase = { ...defaultExamShape, ...exam };
+        if (!sanitizedExamBase.id) sanitizedExamBase.id = `loaded-${Date.now()}-${index}`;
+        if (!sanitizedExamBase.name) sanitizedExamBase.name = 'Untitled Loaded Exam';
+        const loadedSp = exam.sp || {};
+
+        let sanitizedSp;
+        if (preserveLiveState) {
+            sanitizedSp = { ...defaultSp, ...loadedSp };
+        } else {
+            sanitizedSp = { ...defaultSp, ...loadedSp, onRest: false, restTaken: 0, restStartTime: null, onReaderWriter: false, readerWriterTaken: 0, readerWriterStartTime: null };
+            sanitizedExamBase.status = 'running';
+            sanitizedExamBase.isPaused = false;
+            sanitizedExamBase.pauseStartTime = null;
+            sanitizedExamBase.pauseDurationTotal = 0;
+            sanitizedExamBase.startTime = undefined;
+            sanitizedExamBase.readEndTime = undefined;
+            sanitizedExamBase.writeEndTime = undefined;
+        }
+
+        const finalExam: Exam = { ...sanitizedExamBase, sp: sanitizedSp };
+        if (typeof finalExam.hasAccessCode === 'undefined') finalExam.hasAccessCode = !!finalExam.accessCode;
+        return finalExam;
+    });
+};
+
 // --- Initial State ---
 const initialState: AppState = {
     currentPage: 'setup',
@@ -60,37 +98,7 @@ const initialState: AppState = {
     },
 };
 
-const AppContext = createContext<{ state: AppState; dispatch: Dispatch<Action>; }>({
-    state: initialState,
-    dispatch: () => null,
-});
-
-const sanitizeLoadedExams = (exams: any[]): Exam[] => {
-    if (!Array.isArray(exams)) return [];
-    const defaultExamShape: Omit<Exam, 'sp'> = {
-        id: '', name: 'Untitled Exam', readMins: 0, writeHrs: 0, writeMins: 0, optionalInfo: '',
-        hasAccessCode: false, accessCode: '', status: 'running', isPaused: false, pauseStartTime: null,
-        pauseDurationTotal: 0, startTime: undefined, readEndTime: undefined, writeEndTime: undefined,
-    };
-    const defaultSp: SPSettings = {
-        studentName: '', showStudentName: false, extraTime: 0, restBreaks: 0, restTaken: 0,
-        onRest: false, restStartTime: null, readerWriterTime: 0, readerWriterTaken: 0,
-        onReaderWriter: false, readerWriterStartTime: null,
-    };
-    return exams.map((exam: any, index: number) => {
-        if (typeof exam !== 'object' || exam === null) exam = {};
-        const sanitizedExamBase = { ...defaultExamShape, ...exam };
-        if (!sanitizedExamBase.id) sanitizedExamBase.id = `loaded-${Date.now()}-${index}`;
-        if (!sanitizedExamBase.name) sanitizedExamBase.name = 'Untitled Loaded Exam';
-        const loadedSp = exam.sp || {};
-        const sanitizedSp = { ...defaultSp, ...loadedSp, onRest: false, restTaken: 0, restStartTime: null, onReaderWriter: false, readerWriterTaken: 0, readerWriterStartTime: null };
-        const finalExam: Exam = { ...sanitizedExamBase, sp: sanitizedSp };
-        if (typeof finalExam.hasAccessCode === 'undefined') finalExam.hasAccessCode = !!finalExam.accessCode;
-        return finalExam;
-    });
-};
-
-// --- Reducer ---
+// --- Reducer Logic ---
 const appReducer = (state: AppState, action: Action): AppState => {
     return produce(state, (draft: AppState) => {
         switch (action.type) {
@@ -113,9 +121,6 @@ const appReducer = (state: AppState, action: Action): AppState => {
             case 'UPDATE_SETTINGS': {
                 const newSettings = action.payload;
                 Object.assign(draft.settings, newSettings);
-                if (draft.sessionMode === 'examinations' && newSettings.specialProvisions === true) {
-                    draft.settings.gridLayout = 1;
-                }
                 break;
             }
             case 'APPLY_SESSION_PRESET': {
@@ -160,8 +165,15 @@ const appReducer = (state: AppState, action: Action): AppState => {
             }
             case 'IMPORT_SESSION': {
                 const loadedData = action.payload;
-                const sanitizedExams = sanitizeLoadedExams(loadedData.exams);
-                const sanitizedSettings = { ...DEFAULT_SETTINGS, ...(loadedData.settings || {}) };
+                const sanitizedExams = sanitizeLoadedExams(loadedData.exams, false);
+                const sanitizedSettings = { 
+                    ...DEFAULT_SETTINGS, 
+                    ...(loadedData.settings || {}),
+                    fontSizes: {
+                        ...DEFAULT_SETTINGS.fontSizes,
+                        ...(loadedData.settings?.fontSizes || {})
+                    }
+                };
                 draft.settings = sanitizedSettings;
                 draft.exams = sanitizedExams;
                 draft.sessionMode = loadedData.sessionMode || 'examinations';
@@ -172,16 +184,9 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 draft.sessionLog = [];
                 break;
             }
-            case 'PREVIEW_EXAMS': {
-                draft.currentPage = 'exam';
-                draft.isLive = false;
-                break;
-            }
+            case 'PREVIEW_EXAMS': { draft.currentPage = 'exam'; draft.isLive = false; break; }
             case 'START_LIVE_SESSION': {
-                draft.isLive = true;
-                draft.isPaused = false;
-                draft.currentPage = 'exam';
-                draft.sessionLog = [];
+                draft.isLive = true; draft.isPaused = false; draft.currentPage = 'exam'; draft.sessionLog = [];
                 addLogEntry(draft, 'Session commenced.');
                 if (draft.sessionMode === 'examinations') {
                     const sessionStartTime = Date.now();
@@ -196,11 +201,8 @@ const appReducer = (state: AppState, action: Action): AppState => {
                     addLogEntry(draft, 'Session ended by user.');
                     exportSessionLog(draft);
                 }
-                draft.currentPage = 'setup';
-                draft.isLive = false;
-                draft.isPaused = false;
-                draft.autoStartTargetTime = null;
-                draft.sessionLog = [];
+                draft.currentPage = 'setup'; draft.isLive = false; draft.isPaused = false;
+                draft.autoStartTargetTime = null; draft.sessionLog = [];
                 draft.exams.forEach((exam: Exam) => {
                     exam.status = 'running'; exam.isPaused = false; exam.sp.onRest = false;
                     exam.sp.restTaken = 0; exam.sp.onReaderWriter = false; exam.sp.readerWriterTaken = 0;
@@ -217,10 +219,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
             case 'TOGGLE_FABS': { draft.ui.fabsCollapsed = !draft.ui.fabsCollapsed; break; }
             case 'SET_ACTIVE_MODAL': {
                 draft.ui.activeModal = action.payload;
-                if (!action.payload) {
-                    draft.ui.editingExamId = null;
-                    draft.ui.disruptionTargetId = null;
-                }
+                if (!action.payload) { draft.ui.editingExamId = null; draft.ui.disruptionTargetId = null; }
                 break;
             }
             case 'SET_CONFIRM_ACTION': {
@@ -230,11 +229,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 break;
             }
             case 'SET_EDITING_EXAM_ID': { draft.ui.editingExamId = action.payload; break; }
-            case 'SET_DISRUPTION_TARGET': {
-                draft.ui.disruptionTargetId = action.payload;
-                draft.ui.activeModal = 'emergency';
-                break;
-            }
+            case 'SET_DISRUPTION_TARGET': { draft.ui.disruptionTargetId = action.payload; draft.ui.activeModal = 'emergency'; break; }
             case 'UPDATE_FONT_SIZE': {
                 const { elementId, direction } = action.payload;
                 const getNewSize = (id: string, defaultSize: number) => {
@@ -250,17 +245,12 @@ const appReducer = (state: AppState, action: Action): AppState => {
                     for (const p in cardPrefixes) if (elementId.startsWith(p)) { matchedPrefix = p; break; }
                     if (matchedPrefix) {
                         const newSize = getNewSize(elementId, cardPrefixes[matchedPrefix]);
-                        draft.exams.forEach(exam => {
-                            const key = `${matchedPrefix}${exam.id}`;
-                            draft.settings.fontSizes[key] = newSize;
-                        });
+                        draft.exams.forEach(exam => { draft.settings.fontSizes[`${matchedPrefix}${exam.id}`] = newSize; });
                     } else {
-                        const defaultSize = elementId.includes('title') ? 24 : 16;
-                        draft.settings.fontSizes[elementId] = getNewSize(elementId, defaultSize);
+                        draft.settings.fontSizes[elementId] = getNewSize(elementId, elementId.includes('title') ? 24 : 16);
                     }
                 } else {
-                    const defaultSize = elementId.includes('title') ? 24 : 16;
-                    draft.settings.fontSizes[elementId] = getNewSize(elementId, defaultSize);
+                    draft.settings.fontSizes[elementId] = getNewSize(elementId, elementId.includes('title') ? 24 : 16);
                 }
                 break;
             }
@@ -273,9 +263,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
                     const exam = draft.exams.find((e: Exam) => e.id === examId);
                     if (exam) { exam.isPaused = true; exam.pauseStartTime = now; addLogEntry(draft, `Exam "${exam.name}" paused. Justification: ${justification}`); }
                 } else {
-                    draft.isPaused = true;
-                    draft.pauseStartTime = now;
-                    addLogEntry(draft, `Session paused. Justification: ${justification}`);
+                    draft.isPaused = true; draft.pauseStartTime = now; addLogEntry(draft, `Session paused. Justification: ${justification}`);
                 }
                 break;
             }
@@ -302,8 +290,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
             case 'ABANDON_EXAM': {
                 const exam = draft.exams.find((e: Exam) => e.id === action.payload.examId);
                 if (exam) {
-                    exam.status = 'abandoned';
-                    addLogEntry(draft, `Exam "${exam.name}" abandoned. Justification: ${action.payload.justification}`);
+                    exam.status = 'abandoned'; addLogEntry(draft, `Exam "${exam.name}" abandoned. Justification: ${action.payload.justification}`);
                     if (draft.sessionMode === 'examinations') recalculateAllExamEndTimes(draft);
                 }
                 break;
@@ -313,30 +300,16 @@ const appReducer = (state: AppState, action: Action): AppState => {
                 if (exam) {
                     const now = Date.now();
                     const MIN_BREAK_MILLIS = 5 * 60 * 1000;
-
                     if (exam.sp.onRest) {
                         const timeSpentMillis = now - (exam.sp.restStartTime || now);
-                        
-                        if (timeSpentMillis < MIN_BREAK_MILLIS) {
-                            return; 
-                        }
-
+                        if (timeSpentMillis < MIN_BREAK_MILLIS) return; 
                         const timeSpentMins = Math.round(timeSpentMillis / 60000);
-                        const roundedTimeSpentMillis = timeSpentMins * 60000;
-
-                        exam.sp.restTaken += roundedTimeSpentMillis;
-                        exam.sp.onRest = false; 
-                        exam.sp.restStartTime = null;
+                        exam.sp.restTaken += timeSpentMins * 60000;
+                        exam.sp.onRest = false; exam.sp.restStartTime = null;
                         addLogEntry(draft, `Rest break ended for "${exam.name}". Duration logged: ${timeSpentMins} min(s).`);
                     } else {
-                        const remainingMillis = (exam.sp.restBreaks * 60000) - exam.sp.restTaken;
-                        
-                        if (remainingMillis < MIN_BREAK_MILLIS) {
-                            return;
-                        }
-
-                        exam.sp.onRest = true;
-                        exam.sp.restStartTime = now;
+                        if (((exam.sp.restBreaks * 60000) - exam.sp.restTaken) < MIN_BREAK_MILLIS) return;
+                        exam.sp.onRest = true; exam.sp.restStartTime = now;
                         addLogEntry(draft, `Rest break started for "${exam.name}".`);
                     }
                     if (draft.sessionMode === 'examinations') recalculateAllExamEndTimes(draft);
@@ -352,8 +325,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
                         exam.sp.onReaderWriter = false; exam.sp.readerWriterStartTime = null;
                         addLogEntry(draft, `Reader/Writer session ended for "${exam.name}".`);
                     } else {
-                        exam.sp.onReaderWriter = true;
-                        exam.sp.readerWriterStartTime = now;
+                        exam.sp.onReaderWriter = true; exam.sp.readerWriterStartTime = now;
                         addLogEntry(draft, `Reader/Writer session started for "${exam.name}".`);
                     }
                     if (draft.sessionMode === 'examinations') recalculateAllExamEndTimes(draft);
@@ -363,8 +335,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
             case 'FINISH_EXAM': {
                 const exam = draft.exams.find((e: Exam) => e.id === action.payload); 
                 if (exam && exam.status !== 'finished') {
-                    exam.status = 'finished';
-                    addLogEntry(draft, `Exam "${exam.name}" finished automatically.`);
+                    exam.status = 'finished'; addLogEntry(draft, `Exam "${exam.name}" finished automatically.`);
                 }
                 break;
             }
@@ -373,12 +344,13 @@ const appReducer = (state: AppState, action: Action): AppState => {
     });
 };
 
-const init = (initialState: AppState): AppState => {
+// --- Initialization ---
+const loadInitialState = (): AppState => {
     try {
         const savedState = localStorage.getItem('examTimerState');
         if (savedState) {
             const loaded = JSON.parse(savedState);
-            const sanitizedExams = sanitizeLoadedExams(loaded.exams);
+            const isLive = loaded.isLive || false;
             const persistentUi = {
                 showTooltips: loaded.ui?.showTooltips !== false,
                 fontLockEnabled: loaded.ui?.fontLockEnabled || false,
@@ -386,16 +358,24 @@ const init = (initialState: AppState): AppState => {
                 theme: loaded.ui?.theme || 'system',
                 showFontControls: loaded.ui?.showFontControls || false,
             };
-
-            const isLive = loaded.isLive || false;
-            const currentPage = isLive ? 'exam' : 'setup';
-
             return {
                 ...initialState,
                 isLive,
-                currentPage,
-                settings: { ...DEFAULT_SETTINGS, ...(loaded.settings || {}) },
-                exams: sanitizedExams,
+                currentPage: isLive ? 'exam' : 'setup',
+                isPaused: loaded.isPaused || false,
+                pauseStartTime: loaded.pauseStartTime || null,
+                pauseDurationTotal: loaded.pauseDurationTotal || 0,
+                autoStartTargetTime: loaded.autoStartTargetTime || null,
+                sessionLog: loaded.sessionLog || [],
+                settings: { 
+                    ...DEFAULT_SETTINGS, 
+                    ...(loaded.settings || {}),
+                    fontSizes: {
+                        ...DEFAULT_SETTINGS.fontSizes,
+                        ...(loaded.settings?.fontSizes || {})
+                    }
+                },
+                exams: sanitizeLoadedExams(loaded.exams, isLive),
                 sessionMode: loaded.sessionMode || 'examinations',
                 ui: { ...initialState.ui, ...persistentUi }
             };
@@ -404,60 +384,12 @@ const init = (initialState: AppState): AppState => {
     return initialState;
 };
 
-export const AppProvider = ({ children }: { children: ReactNode }) => {
-    const [state, dispatch] = useReducer(appReducer, initialState, init);
+// --- Zustand Store ---
+export interface StoreState extends AppState {
+    dispatch: (action: Action) => void;
+}
 
-    useEffect(() => {
-        const stateToSave = {
-            settings: state.settings,
-            exams: state.exams,
-            sessionMode: state.sessionMode,
-            isLive: state.isLive,
-            currentPage: state.currentPage,
-            ui: {
-                showTooltips: state.ui.showTooltips,
-                fontLockEnabled: state.ui.fontLockEnabled,
-                fabsCollapsed: state.ui.fabsCollapsed,
-                theme: state.ui.theme,
-                showFontControls: state.ui.showFontControls,
-            },
-        };
-        localStorage.setItem('examTimerState', JSON.stringify(stateToSave));
-    }, [
-        state.settings, state.exams, state.sessionMode, state.isLive, state.currentPage,
-        state.ui.showTooltips, state.ui.fontLockEnabled, state.ui.fabsCollapsed, 
-        state.ui.theme, state.ui.showFontControls
-    ]);
-
-    useEffect(() => {
-        let interval: number | undefined;
-
-        if (state.autoStartTargetTime && !state.isLive) {
-            interval = window.setInterval(async () => {
-                if (Date.now() >= state.autoStartTargetTime!) {
-                    
-                    await requestFullscreen();
-                    await activateWakelock();
-
-                    dispatch({ type: 'START_LIVE_SESSION' });
-                    
-                    window.clearInterval(interval);
-                }
-            }, 500);
-        }
-
-        return () => {
-            if (interval) {
-                window.clearInterval(interval);
-            }
-        };
-    }, [state.autoStartTargetTime, state.isLive, dispatch]);
-
-    return (
-        <AppContext.Provider value={{ state, dispatch }}>
-            {children}
-        </AppContext.Provider>
-    );
-};
-
-export const useAppContext = () => useContext(AppContext);
+export const useStore = create<StoreState>((set) => ({
+    ...loadInitialState(),
+    dispatch: (action: Action) => set((state) => appReducer(state, action)),
+}));

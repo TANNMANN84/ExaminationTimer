@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useAppContext } from './context/AppContext';
+import { useStore } from './context/useStore';
 import WelcomeModal from './components/modals/WelcomeModal';
 import SetupPage from './components/pages/SetupPage';
 import ExamPage from './components/pages/ExamPage';
@@ -19,8 +19,8 @@ import NaplanWizardModal from './components/modals/NaplanWizardModal';
 import CheckinWizardModal from './components/modals/CheckinWizardModal';
 
 const App: React.FC = () => {
-    const { state, dispatch } = useAppContext();
-    const [welcomeModalOpen, setWelcomeModalOpen] = useState(false);
+    const state = useStore(state => state);
+    const dispatch = useStore(state => state.dispatch);
 
     useWakeLock(state.isLive);
 
@@ -44,21 +44,6 @@ const App: React.FC = () => {
     }, [state.ui.theme]);
 
     useEffect(() => {
-        const manageFullscreen = async () => {
-            try {
-                if (state.isLive && !document.fullscreenElement) {
-                    await document.documentElement.requestFullscreen();
-                } else if (!state.isLive && document.fullscreenElement) {
-                    await document.exitFullscreen();
-                }
-            } catch (err: any) {
-                 console.error(`Fullscreen Error: ${err.message} (${err.name})`);
-            }
-        };
-        manageFullscreen();
-    }, [state.isLive]);
-
-    useEffect(() => {
         const handleBeforeUnload = (event: BeforeUnloadEvent) => {
             event.preventDefault();
             event.returnValue = 'Are you sure you want to leave? Your live exam session will be interrupted.';
@@ -73,25 +58,14 @@ const App: React.FC = () => {
         };
     }, [state.isLive]);
 
-    useEffect(() => {
-        if (!sessionStorage.getItem('welcomeShown')) {
-            setWelcomeModalOpen(true);
-        }
-    }, []);
-
     useHotkeys('ctrl+s, command+s', (e: KeyboardEvent) => {
         e.preventDefault();
         exportSession(state);
-    }, [state]);
-     useHotkeys('ctrl+o, command+o', (e: KeyboardEvent) => {
+    }, { enableOnFormTags: false }, [state]);
+    useHotkeys('ctrl+o, command+o', (e: KeyboardEvent) => {
         e.preventDefault();
         document.getElementById('import-file-input')?.click();
-    });
-
-    const handleWelcomeClose = () => {
-        sessionStorage.setItem('welcomeShown', 'true');
-        setWelcomeModalOpen(false);
-    };
+    }, { enableOnFormTags: false });
 
     const containerClasses = [
         state.ui.showFontControls ? 'show-font-controls' : '',
@@ -106,8 +80,8 @@ const App: React.FC = () => {
                 <Footer />
 
                 <WelcomeModal
-                    isOpen={welcomeModalOpen}
-                    onClose={handleWelcomeClose}
+                    isOpen={state.ui.activeModal === 'changelog'}
+                    onClose={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: null })}
                 />
                 <Tooltip />
 

@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 
 import { useTooltip } from '../../context/TooltipContext';
 
@@ -10,9 +10,9 @@ import { exportSession } from '../../utils/export';
 
 const SetupActions: React.FC = () => {
 
-    const { state, dispatch } = useAppContext();
-
-    const { exams } = state;
+    const state = useStore(state => state);
+    const dispatch = useStore(state => state.dispatch);
+    const exams = useStore(state => state.exams);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 

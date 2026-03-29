@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTooltip } from '../../context/TooltipContext';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 
 interface SettingRowProps {
     label: string;
@@ -11,10 +11,10 @@ interface SettingRowProps {
 
 const SettingRow: React.FC<SettingRowProps> = ({ label, tooltip, children, subOption = false }) => {
     const { showTooltip, hideTooltip } = useTooltip();
-    const { state } = useAppContext();
+    const showTooltips = useStore(state => state.ui.showTooltips);
     
     const handleShowTooltip = (e: React.SyntheticEvent<HTMLButtonElement>) => {
-        if (state.ui.showTooltips) {
+        if (showTooltips) {
             showTooltip(tooltip, e.currentTarget);
         }
     };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 import type { GridLayout, Settings } from '../../types';
 import Accordion from '../ui/Accordion';
 import SettingRow from '../ui/SettingRow';
@@ -7,8 +7,9 @@ import Toggle from '../ui/Toggle';
 import { ColorAlertsGraphic, CrestGraphic, GridLayoutGraphic, TimeBreakdownGraphic, TimeFormatGraphic } from '../ui/TooltipGraphics';
 
 const DisplayOptions: React.FC = () => {
-    const { state, dispatch } = useAppContext();
-    const { settings, sessionMode } = state;
+    const dispatch = useStore(state => state.dispatch);
+    const settings = useStore(state => state.settings);
+    const sessionMode = useStore(state => state.sessionMode);
 
     const isStandardised = sessionMode === 'standardised';
 

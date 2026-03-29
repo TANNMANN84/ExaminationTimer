@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 import StandardPresetModal from './StandardPresetModal';
 import NaplanWizardModal from './NaplanWizardModal';
 
@@ -9,8 +9,8 @@ interface PresetModalProps {
 }
 
 const PresetModal: React.FC<PresetModalProps> = ({ isOpen, onClose }) => {
-    const { state } = useAppContext();
-    const { sessionMode, settings } = state;
+    const sessionMode = useStore(state => state.sessionMode);
+    const settings = useStore(state => state.settings);
 
     const showNaplanWizard = sessionMode === 'standardised' && settings.sessionTitle === 'NAPLAN';
 

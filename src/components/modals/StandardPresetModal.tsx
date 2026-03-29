@@ -1,6 +1,6 @@
 import React, { useState, useEffect, type JSX } from 'react';
 import Modal from '../ui/Modal';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 import { PRESET_ALIASES, EXAM_PRESETS } from '../../constants';
 import type { Exam, ExamPresetItem, ExamPresetCategory, SPSettings } from '../../types';
 
@@ -29,8 +29,8 @@ const CustomCheckbox: React.FC<{ name: string, checked: boolean, onChange: () =>
 
 
 const StandardPresetModal: React.FC<StandardPresetModalProps> = ({ isOpen, onClose }) => {
-    const { state, dispatch } = useAppContext();
-    const { settings } = state;
+    const dispatch = useStore(state => state.dispatch);
+    const settings = useStore(state => state.settings);
     
     const [selected, setSelected] = useState<Record<string, { preset: ExamPresetItem, name: string }>>({});
     

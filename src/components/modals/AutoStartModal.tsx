@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Modal from '../ui/Modal';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 
 interface AutoStartModalProps {
     isOpen: boolean;
@@ -8,7 +8,7 @@ interface AutoStartModalProps {
 }
 
 const AutoStartModal: React.FC<AutoStartModalProps> = ({ isOpen, onClose }) => {
-    const { dispatch } = useAppContext();
+    const dispatch = useStore(state => state.dispatch);
     const [time, setTime] = useState('');
     const [error, setError] = useState('');
 
@@ -22,8 +22,8 @@ const AutoStartModal: React.FC<AutoStartModalProps> = ({ isOpen, onClose }) => {
         const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
 
         if (startTime <= now) {
-            setError('Start time must be in the future.');
-            return;
+            // If the selected time has already passed today, assume it's for tomorrow.
+            startTime.setDate(startTime.getDate() + 1);
         }
 
         dispatch({ type: 'SET_AUTO_START_TIME', payload: startTime.getTime() });

@@ -1,6 +1,7 @@
 import React from 'react';
 import Modal from '../ui/Modal';
-import { useAppContext } from '../../context/AppContext'; 
+import { useStore } from '../../context/useStore';
+import { version as appVersion } from '../../../package.json';
 
 interface WelcomeModalProps {
     isOpen: boolean;
@@ -8,15 +9,14 @@ interface WelcomeModalProps {
 }
 
 const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose }) => {
-    const { state } = useAppContext();
-    const { crestUrl } = state.settings;
-
-    const appVersion = "7.6.2";
+    const crestUrl = useStore(state => state.settings.crestUrl);
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} ariaLabel="Welcome">
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg shadow-xl p-8 w-full max-w-4xl text-center">
-                <img src={crestUrl} alt="School Crest" className="h-24 w-auto mx-auto mb-4" />
+        <Modal isOpen={isOpen} onClose={onClose} ariaLabel="About & Changelog">
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg shadow-xl p-8 w-full max-w-4xl text-center max-h-[90vh] overflow-y-auto">
+                {crestUrl && crestUrl !== '' && (
+                    <img src={crestUrl} alt="School Crest" className="h-24 w-auto mx-auto mb-4" />
+                )}
 
                 <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 dark:text-slate-100">
                     Examination Timer App <span className="text-indigo-500 dark:text-indigo-400 text-4xl">v{appVersion}</span>
@@ -45,16 +45,16 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose }) => {
                     <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-3">What's New in v{appVersion}</h3>
                     <ul className="list-disc list-inside space-y-2 text-slate-700 dark:text-slate-300">
                         <li>
-                            <strong>Overhauled Header Layout:</strong> The main header is now a dynamic grid for better balance and readability.
+                            <strong>Enhanced Pause Controls:</strong> You can now easily identify and resume individual paused exams directly from the pause overlay.
                         </li>
                         <li>
-                            <strong>Improved Font Controls:</strong> Header and card font controls are now easier to use.
+                            <strong>Improved Layout Responsiveness:</strong> Exam controls, headers, and action buttons now intelligently adapt to smaller screens and split-window views.
                         </li>
                         <li>
-                            <strong>Live Session Protection:</strong> The app now warns you before an accidental refresh and will restore the session if a refresh occurs.
+                            <strong>Smarter Auto-Start:</strong> Auto-Start now handles next-day scheduling seamlessly and properly requests fullscreen mode.
                         </li>
                          <li>
-                            <strong>Improved visibility for users:</strong> Increased fonts, padding  and justifications for viewing from afar.
+                            <strong>Under-the-Hood Upgrades:</strong> A completely rewritten state management engine ensures faster performance, rock-solid timers, and better reliability.
                         </li>
                     </ul>
                 </div>
@@ -62,9 +62,9 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose }) => {
 
                 <button
                     onClick={onClose}
-                    className="mt-10 px-8 py-4 bg-indigo-600 text-white font-bold text-lg rounded-lg shadow-lg hover:bg-indigo-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="mt-10 px-8 py-3 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-lg rounded-lg shadow hover:bg-slate-300 dark:hover:bg-slate-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
                 >
-                    Start Setup
+                    Close
                 </button>
             </div>
         </Modal>

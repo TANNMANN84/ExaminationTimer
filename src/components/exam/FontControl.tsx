@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 
 interface FontControlProps {
     elementId: string;
@@ -7,7 +7,7 @@ interface FontControlProps {
 }
 
 const FontControl: React.FC<FontControlProps> = ({ elementId, direction }) => {
-    const { dispatch } = useAppContext();
+    const dispatch = useStore(state => state.dispatch);
 
     const handleClick = () => {
         dispatch({ type: 'UPDATE_FONT_SIZE', payload: { elementId, direction } });

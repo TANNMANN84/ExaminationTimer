@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 import { EXAMINATION_PRESET_TITLES, STANDARDISED_TEST_TITLES } from '../../constants';
 
 const SessionTitle: React.FC = () => {
-    const { state, dispatch } = useAppContext();
-    const { sessionMode, settings: { sessionTitle } } = state;
+    const dispatch = useStore(state => state.dispatch);
+    const sessionMode = useStore(state => state.sessionMode);
+    const sessionTitle = useStore(state => state.settings.sessionTitle);
     
     const titles = sessionMode === 'examinations' ? EXAMINATION_PRESET_TITLES : STANDARDISED_TEST_TITLES;
     const isOther = !titles.includes(sessionTitle) && sessionTitle !== 'Other';

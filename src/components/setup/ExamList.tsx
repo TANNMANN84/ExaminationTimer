@@ -1,40 +1,71 @@
-import React, { useRef, useEffect } from 'react';
-import Sortable from 'sortablejs';
-import { useAppContext } from '../../context/AppContext';
+import React from 'react';
+import { useStore } from '../../context/useStore';
 import ExamCard from './ExamCard';
 import { EXAMINATION_PRESET_TITLES, PRESET_ALIASES } from '../../constants';
 import { useTooltip } from '../../context/TooltipContext';
-import type { SortableEvent } from 'sortablejs';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    type DragEndEvent
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+const SortableExamListCard: React.FC<{ exam: any }> = ({ exam }) => {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: exam.id });
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 50 : 'auto',
+        opacity: isDragging ? 0.5 : 1,
+    };
+    return (
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+            <ExamCard exam={exam} />
+        </div>
+    );
+};
 
 const ExamList: React.FC = () => {
-    const { state, dispatch } = useAppContext();
-    const { exams, settings, sessionMode } = state;
-    const listRef = useRef<HTMLDivElement>(null);
-    const sortableRef = useRef<Sortable | null>(null);
+    const dispatch = useStore(state => state.dispatch);
+    const exams = useStore(state => state.exams);
+    const settings = useStore(state => state.settings);
+    const sessionMode = useStore(state => state.sessionMode);
+    const showTooltips = useStore(state => state.ui.showTooltips);
     const { showTooltip, hideTooltip } = useTooltip();
     
     const listTitle = sessionMode === 'examinations' ? 'Examination List' : 'Test List';
 
     const handleMouseOver = (tooltipText: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
-        if(state.ui.showTooltips) showTooltip(tooltipText, e.currentTarget);
+        if(showTooltips) showTooltip(tooltipText, e.currentTarget);
     }
 
-    useEffect(() => {
-        if (listRef.current) {
-            sortableRef.current = new Sortable(listRef.current, {
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                onEnd: (evt: SortableEvent) => {
-                    if (evt.oldIndex !== undefined && evt.newIndex !== undefined) {
-                        dispatch({ type: 'REORDER_EXAMS', payload: { oldIndex: evt.oldIndex, newIndex: evt.newIndex } });
-                    }
-                },
-            });
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: { distance: 5 },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            const oldIndex = exams.findIndex((e) => e.id === active.id);
+            const newIndex = exams.findIndex((e) => e.id === over.id);
+            dispatch({ type: 'REORDER_EXAMS', payload: { oldIndex, newIndex } });
         }
-        return () => {
-            sortableRef.current?.destroy();
-        };
-    }, [dispatch]);
+    };
 
     const handlePresetClick = () => {
         const title = settings.sessionTitle.toLowerCase();
@@ -71,14 +102,14 @@ const ExamList: React.FC = () => {
     return (
         <>
             <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                     <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{listTitle}</h2>
-                    <div className="flex space-x-2">
+                    <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                         <button 
                             disabled={isPresetDisabled}
                             onMouseOver={handleMouseOver("Select common exams from a predefined list.")}
                             onMouseOut={hideTooltip}
-                            className="px-4 py-2 bg-slate-600 text-white font-semibold rounded-md hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 sm:flex-none px-4 py-2 bg-slate-600 text-white font-semibold rounded-md hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={handlePresetClick}
                         >
                             {presetButtonText}
@@ -87,7 +118,7 @@ const ExamList: React.FC = () => {
                             onMouseOver={handleMouseOver("Click to open a form and add a new custom exam to the list.")}
                             onMouseOut={hideTooltip}
                             // 2. Apply the dynamic class here
-                            className={`px-4 py-2 text-white font-semibold rounded-md transition ${primaryButtonClass}`}
+                            className={`flex-1 sm:flex-none px-4 py-2 text-white font-semibold rounded-md transition ${primaryButtonClass}`}
                             onClick={() => dispatch({ type: 'SET_ACTIVE_MODAL', payload: 'exam' })}
                         >
                             Add Manually
@@ -97,9 +128,13 @@ const ExamList: React.FC = () => {
                 <p className="text-xs text-slate-500 dark:text-slate-400 italic mb-4">You can drag and drop tests to reorder them.</p>
             </div>
 
-            <div ref={listRef} className="space-y-4 flex-grow p-6 pt-0">
+            <div className="space-y-4 flex-grow p-6 pt-0">
                 {exams.length > 0 ? (
-                    exams.map(exam => <ExamCard key={exam.id} exam={exam} />)
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                        <SortableContext items={exams.map(e => e.id)} strategy={verticalListSortingStrategy}>
+                            {exams.map(exam => <SortableExamListCard key={exam.id} exam={exam} />)}
+                        </SortableContext>
+                    </DndContext>
                 ) : (
                     <div className="text-center py-12 text-slate-500 dark:text-slate-400 flex-grow flex flex-col justify-center items-center">
                         <p>No tests added yet.</p>

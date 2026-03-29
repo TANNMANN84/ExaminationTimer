@@ -1,6 +1,6 @@
 import React from 'react';
 import Modal from '../ui/Modal';
-import { useAppContext } from '../../context/AppContext';
+import { useStore } from '../../context/useStore';
 import type { ConfirmActionType } from '../../types';
 
 const CONFIRM_DETAILS: Record<ConfirmActionType, { title: string; message: string; confirmText?: string }> = {
@@ -16,18 +16,21 @@ const CONFIRM_DETAILS: Record<ConfirmActionType, { title: string; message: strin
 
 
 const ConfirmModal: React.FC = () => {
-    const { state, dispatch } = useAppContext();
-    const { type, data } = state.ui.confirmAction;
-    const { sessionMode } = state;
+    const dispatch = useStore(state => state.dispatch);
+    const confirmAction = useStore(state => state.ui.confirmAction);
+    const activeModal = useStore(state => state.ui.activeModal);
+    const sessionMode = useStore(state => state.sessionMode);
+    
+    const { type, data } = confirmAction;
 
-    const isOpen = state.ui.activeModal === 'confirm' && type !== null;
+    const isOpen = activeModal === 'confirm' && type !== null;
 
     const handleClose = () => {
         dispatch({ type: 'SET_CONFIRM_ACTION', payload: { type: null } });
         dispatch({ type: 'SET_ACTIVE_MODAL', payload: null });
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         if (!type) return;
 
         switch (type) {
@@ -44,9 +47,15 @@ const ConfirmModal: React.FC = () => {
                 dispatch({ type: 'IMPORT_SESSION', payload: data });
                 break;
             case 'endSession':
+                if (document.fullscreenElement) {
+                    await document.exitFullscreen().catch(err => console.error(err));
+                }
                 dispatch({ type: 'END_SESSION', payload: { shouldReset: false } });
                 break;
             case 'endAndReset':
+                if (document.fullscreenElement) {
+                    await document.exitFullscreen().catch(err => console.error(err));
+                }
                 dispatch({ type: 'END_SESSION', payload: { shouldReset: true } });
                 break;
             case 'editLiveExam':
